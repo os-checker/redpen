@@ -1,0 +1,11 @@
+[package]
+name = "redpen2"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[package.metadata.rust-analyzer]
+# This crate uses #![feature(rustc_private)] to access `rustc` APIs.
+# We're tied to the specific `rustc` version 1.74.0-nigthly 2024-05-06.
+rustc_private = true
