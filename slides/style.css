@@ -1,0 +1,32 @@
+.DivWide ol,
+.DivWide li {
+  margin-top: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.CodeblockTitle {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  text-align: center;
+  font-size: 20px;
+}
+
+.slidev-layout {
+  font-size: 18px;
+}
+
+.slidev-layout pre,
+.slidev-layout pre code {
+  font-size: 16px !important;
+  row-gap: 0.8rem;
+}
+
+.slidev-layout h2 {
+  font-weight: bold;
+  color: #d045d0;
+}
+
+.slidev-layout h3 {
+  font-weight: bold;
+  font-size: 24px;
+}
