@@ -7,9 +7,13 @@
 import { computed } from 'vue';
 
 const props = defineProps<{
+  /** relative horizontal distance to this div */
   x: number,
+  /** relative vertical distance to this div */
   y: number,
+  /** rect width */
   w: number,
+  /** rect height */
   h: number,
 }>();
 

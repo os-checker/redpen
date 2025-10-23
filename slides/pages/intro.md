@@ -50,6 +50,9 @@ fn main() {
 
 ---
 
+<div class="flex h-full">
+  <div class="w-[72%] flex items-center justify-center">
+
 ```rust
 error[E0433]: failed to resolve: use of unresolved module
               or unlinked crate `rustc_middle`
@@ -71,8 +74,13 @@ error[E0432]: unresolved import `rustc_interface`
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ```
 
-<div class="CodeblockTitle">
+  </div>
+  
+  <div class="w-[28%] flex items-center justify-center text-2xl">
+    <div class="border border-green-800 px-2 py-1">
 按需引入编译器模块
+    </div>
+  </div>
 </div>
 
 ---
@@ -170,7 +178,8 @@ run!(&rustc_args, || -> ControlFlow<B, C> { ... })
 run_with_tcx!(&rustc_args, |tcx| -> ControlFlow<B, C> { ... })
 ```
 
-<Rect :x="160" :y="-61" :w="150" :h="25" v-click="[1, 2]" />
+<Rect :x="230" :y="-60" :w="180" :h="25" v-click="[1, 2]" />
+<Rect :x="345" :y="-35" :w="180" :h="25" v-click="[1, 2]" />
 
 <v-click at="1">
 
@@ -208,32 +217,3 @@ let res: Result<C, CompilerError<B>> = run_with_tcx!(...);
 
 </v-click>
 
-
---- 
-
-<SlidesTotal />
-
-<Motion
-  :initial="{ x: 0, y: 0 }"
-  :enter="{ x: 42, y: 76 }"
-  class="absolute w-[600px] h-[66px]
-         pointer-events-none
-         border-2 border-amber-500
-         bg-amber-500/10 rounded-md"/>
-
-<div
-  v-motion
-  :initial="{ x: -80, opacity: 0 }"
-  :enter="{ x: 0, opacity: 1 }"
-    :click-1="{ x: 0, y: 30 }"
-  :click-2="{ y: 60 }"
-  :click-2-4="{ x: 40 }"
-  :leave="{ x: 80, opacity: 0 }"
-  class="absolute w-[600px] h-[66px]
-         pointer-events-none
-         border-2 border-amber-500
-         bg-amber-500/10 rounded-md"/>
-
-<span v-mark="{ at: 5, color: '#234', type: 'circle' }">
-Important text
-</span>
