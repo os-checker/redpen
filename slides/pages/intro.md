@@ -50,8 +50,11 @@ fn main() {
 
 ---
 
-<div class="flex h-full">
-  <div class="w-[72%] flex items-center justify-center">
+<TwoColumns left="70%" right="30%">
+
+<template #left>
+
+  <div>
 
 ```rust
 error[E0433]: failed to resolve: use of unresolved module
@@ -75,13 +78,20 @@ error[E0432]: unresolved import `rustc_interface`
 ```
 
   </div>
-  
-  <div class="w-[28%] flex items-center justify-center text-2xl">
-    <div class="border border-green-800 px-2 py-1">
+
+</template>
+
+<template #right>
+
+  <div class="flex h-full items-center justify-center">
+    <div class="text-2xl border border-green-800 px-2 py-1">
 按需引入编译器模块
     </div>
   </div>
-</div>
+
+</template>
+
+</TwoColumns>
 
 ---
 
