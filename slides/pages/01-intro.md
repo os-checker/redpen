@@ -116,8 +116,7 @@ fn main() {
 <v-click>
 
 ```bash
-# 编译检查工具，并分析 main.rs
-$ cargo run -- src/main.rs
+$ cargo run -- src/main.rs # 编译检查工具，并分析 main.rs
      Running `target/debug/redpen src/main.rs`
 ```
 

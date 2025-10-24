@@ -74,3 +74,6 @@ src: ./pages/01-intro.md
 src: ./pages/02-defid-hirid.md
 ---
 
+---
+src: ./pages/03-mir.md
+---
