@@ -24,6 +24,7 @@ monaco: false
 # controls whether texts in slides are selectable
 # selectable: true
 routerMode: hash
+hideInToc: true
 # download: true
 ---
 
