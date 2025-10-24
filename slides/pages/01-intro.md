@@ -296,16 +296,15 @@ $ cargo run --example print-fn-names -- src/main.rs
 [main] <main::RustcPublic<B, C, F> as rustc_driver::Callbacks>::after_analysis - (instance) Item requires monomorphization
 ```
 
-::: tip Item requires monomorphization?
+<Info>
+🤔 Item requires <strong>monomorphization （单态化）</strong>?
+</Info>
 
 https://rustc-dev-guide.rust-lang.org/backend/monomorph.html
-
-<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 my-4">
-  <strong>提示：</strong> 这是一个 tip 样式的块。
-</div>
 
 </CodeblockSmallSized>
 
 
+---
 
-
+## Monomorphization

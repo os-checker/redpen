@@ -63,10 +63,10 @@ References:
 * [`rustc_middle::lint::lint_level`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/lint/fn.lint_level.html) to emit lints
 
 ---
-src: ./pages/intro.md
+src: ./pages/01-intro.md
 ---
 
 ---
-src: ./pages/tricks.md
+src: ./pages/02-defid-hirid.md
 ---
 
