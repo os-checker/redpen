@@ -43,6 +43,7 @@ hideInToc: true
 
 ---
 hideInToc: true
+routeAlias: toc
 ---
 
 # 目录
@@ -54,6 +55,8 @@ hideInToc: true
 # 基本框架
 
 <Toc mode="onlyCurrentTree" />
+
+<BackToTOC />
 
 ---
 

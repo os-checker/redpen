@@ -1,3 +1,11 @@
+# Rust 编译器中间表示
+
+<Toc mode="onlyCurrentTree" />
+
+<BackToTOC />
+
+---
+
 ## `DefId` 和 `HirId`
 
 <div class="h-4" />
