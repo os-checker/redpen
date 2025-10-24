@@ -113,6 +113,16 @@ fn main() {
 最简入口代码
 </div>
 
+<v-click>
+
+```bash
+# 编译检查工具，并分析 main.rs
+$ cargo run -- src/main.rs
+     Running `target/debug/redpen src/main.rs`
+```
+
+</v-click>
+
 ---
 hideInToc: true
 ---
@@ -180,7 +190,7 @@ AnalysisFn::new($callback).run($args)
 hideInToc: true
 ---
 
-### `run!` 与回调函数
+### `run!` / `run_with_tcx!` 与返回值类型
 
 
 ```rust
@@ -207,23 +217,95 @@ let res: Result<C, CompilerError<B>> = run_with_tcx!(...);
 
 <Rect :x="88" :y="-61" :w="270" :h="50" v-click="[2, 3]" />
 
-<!-- <div v-click="[2, 3]" v-motion -->
-<!--   :initial="{ x: -80, opacity: 0 }" -->
-<!--   :enter="{ x: 88, y: -61, opacity: 1 }" -->
-<!--   :leave="{ x: 100, opacity: 0 }" -->
-<!--   class="absolute w-[268px] h-[50px] -->
-<!--          pointer-events-none -->
-<!--          border-2 border-amber-500 -->
-<!--          bg-amber-500/5 rounded-md"/> -->
-
 <v-click at="2">
 
 宏返回 `Result`：
 
-* `Ok(C)`：编译正常完成，得到闭包的结果
-* `Err(CompilerError::Interrupted(B))`：编译正常终止，得到闭包的结果
+* `Ok(C)`：编译**正常**完成，得到闭包的结果
+* `Err(CompilerError::Interrupted(B))`：编译**正常**终止，得到闭包的结果
 * `Err(CompilerError::Failed)`：编译期间出现错误（ICE）
 * `Err(CompilerError::Skipped)`：没有真正编译代码，比如调用 -v 获取信息
 
 </v-click>
+
+--- 
+
+### 程序分析函数
+
+<CodeblockSmallSized>
+
+```rust {*}{lines: true}
+_ = run!(&rustc_args, analysis);
+```
+
+```rust {*|4|6|7,14,15}{lines:true}
+use rustc_public::{CrateDef, CrateItem, mir::mono::Instance, ty::FnDef};
+
+fn analysis() -> ControlFlow<(), ()> {
+    let local_crate = rustc_public::local_crate();
+    let crate_name = &*local_crate.name;
+    for f in local_crate.fn_defs() {
+        let inst_name = name_from_instance(&f);
+        println!("[{crate_name}] {:33} - (instance) {inst_name}", f.name());
+    }
+    
+    ControlFlow::Break(())
+}
+
+fn name_from_instance(f: &FnDef) -> String {
+    Instance::try_from(CrateItem(f.def_id()))
+        .map(|inst| inst.name())
+        .unwrap_or_else(|err| err.to_string())
+}
+```
+
+</CodeblockSmallSized>
+
+<TwoColumns>
+
+<template #left>
+
+* [`rustc_public::local_crate`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/fn.local_crate.html)
+* [`fn fn_defs(&self) -> Vec<FnDef>`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/struct.Crate.html#method.fn_defs)
+
+</template>
+
+<template #right>
+
+* [`rustc_public::mir::mono::Instance`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/mir/mono/struct.Instance.html)
+* [`rustc_public::DefId`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/crate_def/struct.DefId.html)
+
+</template>
+
+</TwoColumns>
+
+<!-- <Line x1="220" y1="192" x2="425" v-click="[1,2]" /> -->
+<!-- <Line x1="158" y1="226" x2="312" v-click="[2,3]" /> -->
+<!-- <Line x1="92"  y1="390" x2="390" v-click="[3,4]" /> -->
+
+---
+
+<CodeblockSmallSized>
+
+```bash {*|4-6}
+$ cargo run --example print-fn-names -- src/main.rs
+     Running `target/debug/examples/print-fn-names src/main.rs`
+[main] main                              - (instance) main
+[main] main::RustcPublic::<B, C, F>::new - (instance) Item requires monomorphization
+[main] main::RustcPublic::<B, C, F>::run - (instance) Item requires monomorphization
+[main] <main::RustcPublic<B, C, F> as rustc_driver::Callbacks>::after_analysis - (instance) Item requires monomorphization
+```
+
+::: tip Item requires monomorphization?
+
+https://rustc-dev-guide.rust-lang.org/backend/monomorph.html
+
+<div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 my-4">
+  <strong>提示：</strong> 这是一个 tip 样式的块。
+</div>
+
+</CodeblockSmallSized>
+
+
+
 
