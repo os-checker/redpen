@@ -1,0 +1,141 @@
+   Compiling redpen v0.1.0 (/home/gh-zjp-CN/redpen2)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.62s
+     Running `target/debug/examples/check-panics examples/vec-push/vec-push.rs`
+[examples/check-panics.rs:70:9] self = Reachability {
+    map: {
+        "main": Visitor {
+            callees: {
+                "std::vec::Vec::<T>::new",
+                "std::vec::Vec::<T, A>::push",
+            },
+        },
+        "std::vec::Vec::<T>::new": Visitor {
+            callees: {},
+        },
+        "std::vec::Vec::<T, A>::push": Visitor {
+            callees: {
+                "std::vec::Vec::<T, A>::push_mut",
+            },
+        },
+        "std::vec::Vec::<T, A>::push_mut": Visitor {
+            callees: {
+                "alloc::raw_vec::RawVec::<T, A>::grow_one",
+            },
+        },
+        "alloc::raw_vec::RawVec::<T, A>::grow_one": Visitor {
+            callees: {
+                "alloc::raw_vec::RawVecInner::<A>::grow_amortized",
+                "alloc::raw_vec::handle_error",
+            },
+        },
+        "alloc::raw_vec::RawVecInner::<A>::grow_amortized": Visitor {
+            callees: {
+                "std::intrinsics::cold_path",
+                "std::cmp::Ord::max",
+                "alloc::raw_vec::RawVecInner::<A>::finish_grow",
+            },
+        },
+        "std::intrinsics::cold_path": Visitor {
+            callees: {},
+        },
+        "std::cmp::Ord::max": Visitor {
+            callees: {
+                "std::cmp::PartialOrd::lt",
+            },
+        },
+        "std::cmp::PartialOrd::lt": Visitor {
+            callees: {
+                "std::cmp::PartialOrd::partial_cmp",
+                "std::cmp::Ordering::is_lt",
+            },
+        },
+        "std::cmp::PartialOrd::partial_cmp": Visitor {
+            callees: {},
+        },
+        "std::cmp::Ordering::is_lt": Visitor {
+            callees: {},
+        },
+        "alloc::raw_vec::RawVecInner::<A>::finish_grow": Visitor {
+            callees: {
+                "std::alloc::Layout::repeat",
+                "std::alloc::Allocator::allocate",
+                "alloc::raw_vec::RawVecInner::<A>::current_memory",
+                "std::hint::assert_unchecked::precondition_check",
+                "std::alloc::Allocator::grow",
+            },
+        },
+        "std::alloc::Layout::repeat": Visitor {
+            callees: {
+                "std::alloc::Layout::from_size_align_unchecked::precondition_check",
+                "std::intrinsics::cold_path",
+            },
+        },
+        "std::alloc::Layout::from_size_align_unchecked::precondition_check": Visitor {
+            callees: {
+                "std::alloc::Layout::is_size_align_valid",
+                "core::panicking::panic_nounwind_fmt",
+            },
+        },
+        "std::alloc::Layout::is_size_align_valid": Visitor {
+            callees: {},
+        },
+        "core::panicking::panic_nounwind_fmt": Visitor {
+            callees: {},
+        },
+        "std::alloc::Allocator::allocate": Visitor {
+            callees: {},
+        },
+        "alloc::raw_vec::RawVecInner::<A>::current_memory": Visitor {
+            callees: {
+                "core::num::<impl usize>::unchecked_mul::precondition_check",
+                "std::alloc::Layout::from_size_align_unchecked::precondition_check",
+            },
+        },
+        "core::num::<impl usize>::unchecked_mul::precondition_check": Visitor {
+            callees: {
+                "core::panicking::panic_nounwind_fmt",
+            },
+        },
+        "std::hint::assert_unchecked::precondition_check": Visitor {
+            callees: {
+                "core::panicking::panic_nounwind_fmt",
+            },
+        },
+        "std::alloc::Allocator::grow": Visitor {
+            callees: {
+                "std::alloc::Allocator::allocate",
+                "std::ptr::copy_nonoverlapping::precondition_check",
+                "std::alloc::Allocator::deallocate",
+            },
+        },
+        "std::ptr::copy_nonoverlapping::precondition_check": Visitor {
+            callees: {
+                "std::intrinsics::ctpop",
+                "core::ub_checks::maybe_is_nonoverlapping::runtime",
+                "core::panicking::panic_nounwind_fmt",
+                "std::rt::panic_fmt",
+            },
+        },
+        "std::intrinsics::ctpop": Visitor {
+            callees: {},
+        },
+        "core::ub_checks::maybe_is_nonoverlapping::runtime": Visitor {
+            callees: {
+                "std::intrinsics::cold_path",
+                "core::panicking::panic_nounwind",
+            },
+        },
+        "core::panicking::panic_nounwind": Visitor {
+            callees: {},
+        },
+        "std::rt::panic_fmt": Visitor {
+            callees: {},
+        },
+        "std::alloc::Allocator::deallocate": Visitor {
+            callees: {},
+        },
+        "alloc::raw_vec::handle_error": Visitor {
+            callees: {},
+        },
+    },
+}

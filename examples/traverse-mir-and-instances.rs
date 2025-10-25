@@ -1,4 +1,4 @@
-//! Collect direct called funtions.
+//! Collect nested called funtions.
 //!
 //! `cargo run --example traverse-mir-and-instances -- examples/vec-push/vec-push.rs`
 //!
