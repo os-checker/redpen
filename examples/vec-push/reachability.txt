@@ -1,141 +1,285 @@
    Compiling redpen v0.1.0 (/home/gh-zjp-CN/redpen2)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.62s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.63s
      Running `target/debug/examples/check-panics examples/vec-push/vec-push.rs`
-[examples/check-panics.rs:70:9] self = Reachability {
-    map: {
-        "main": Visitor {
-            callees: {
-                "std::vec::Vec::<T>::new",
-                "std::vec::Vec::<T, A>::push",
-            },
-        },
-        "std::vec::Vec::<T>::new": Visitor {
-            callees: {},
-        },
-        "std::vec::Vec::<T, A>::push": Visitor {
-            callees: {
-                "std::vec::Vec::<T, A>::push_mut",
-            },
-        },
-        "std::vec::Vec::<T, A>::push_mut": Visitor {
-            callees: {
-                "alloc::raw_vec::RawVec::<T, A>::grow_one",
-            },
-        },
-        "alloc::raw_vec::RawVec::<T, A>::grow_one": Visitor {
-            callees: {
+[examples/check-panics.rs:92:9] self = CallGraph {
+    edges: {
+        "alloc::raw_vec::RawVec::<T, A>::grow_one": Nodes {
+            set: {
                 "alloc::raw_vec::RawVecInner::<A>::grow_amortized",
                 "alloc::raw_vec::handle_error",
             },
         },
-        "alloc::raw_vec::RawVecInner::<A>::grow_amortized": Visitor {
-            callees: {
-                "std::intrinsics::cold_path",
-                "std::cmp::Ord::max",
-                "alloc::raw_vec::RawVecInner::<A>::finish_grow",
-            },
-        },
-        "std::intrinsics::cold_path": Visitor {
-            callees: {},
-        },
-        "std::cmp::Ord::max": Visitor {
-            callees: {
-                "std::cmp::PartialOrd::lt",
-            },
-        },
-        "std::cmp::PartialOrd::lt": Visitor {
-            callees: {
-                "std::cmp::PartialOrd::partial_cmp",
-                "std::cmp::Ordering::is_lt",
-            },
-        },
-        "std::cmp::PartialOrd::partial_cmp": Visitor {
-            callees: {},
-        },
-        "std::cmp::Ordering::is_lt": Visitor {
-            callees: {},
-        },
-        "alloc::raw_vec::RawVecInner::<A>::finish_grow": Visitor {
-            callees: {
-                "std::alloc::Layout::repeat",
-                "std::alloc::Allocator::allocate",
-                "alloc::raw_vec::RawVecInner::<A>::current_memory",
-                "std::hint::assert_unchecked::precondition_check",
-                "std::alloc::Allocator::grow",
-            },
-        },
-        "std::alloc::Layout::repeat": Visitor {
-            callees: {
-                "std::alloc::Layout::from_size_align_unchecked::precondition_check",
-                "std::intrinsics::cold_path",
-            },
-        },
-        "std::alloc::Layout::from_size_align_unchecked::precondition_check": Visitor {
-            callees: {
-                "std::alloc::Layout::is_size_align_valid",
-                "core::panicking::panic_nounwind_fmt",
-            },
-        },
-        "std::alloc::Layout::is_size_align_valid": Visitor {
-            callees: {},
-        },
-        "core::panicking::panic_nounwind_fmt": Visitor {
-            callees: {},
-        },
-        "std::alloc::Allocator::allocate": Visitor {
-            callees: {},
-        },
-        "alloc::raw_vec::RawVecInner::<A>::current_memory": Visitor {
-            callees: {
+        "alloc::raw_vec::RawVecInner::<A>::current_memory": Nodes {
+            set: {
                 "core::num::<impl usize>::unchecked_mul::precondition_check",
                 "std::alloc::Layout::from_size_align_unchecked::precondition_check",
             },
         },
-        "core::num::<impl usize>::unchecked_mul::precondition_check": Visitor {
-            callees: {
-                "core::panicking::panic_nounwind_fmt",
-            },
-        },
-        "std::hint::assert_unchecked::precondition_check": Visitor {
-            callees: {
-                "core::panicking::panic_nounwind_fmt",
-            },
-        },
-        "std::alloc::Allocator::grow": Visitor {
-            callees: {
+        "alloc::raw_vec::RawVecInner::<A>::finish_grow": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::current_memory",
                 "std::alloc::Allocator::allocate",
-                "std::ptr::copy_nonoverlapping::precondition_check",
-                "std::alloc::Allocator::deallocate",
+                "std::alloc::Allocator::grow",
+                "std::alloc::Layout::repeat",
+                "std::hint::assert_unchecked::precondition_check",
             },
         },
-        "std::ptr::copy_nonoverlapping::precondition_check": Visitor {
-            callees: {
-                "std::intrinsics::ctpop",
-                "core::ub_checks::maybe_is_nonoverlapping::runtime",
+        "alloc::raw_vec::RawVecInner::<A>::grow_amortized": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::finish_grow",
+                "std::cmp::Ord::max",
+                "std::intrinsics::cold_path",
+            },
+        },
+        "alloc::raw_vec::handle_error": Nodes {
+            set: {},
+        },
+        "core::num::<impl usize>::unchecked_mul::precondition_check": Nodes {
+            set: {
                 "core::panicking::panic_nounwind_fmt",
+            },
+        },
+        "core::panicking::panic_nounwind": Nodes {
+            set: {},
+        },
+        "core::panicking::panic_nounwind_fmt": Nodes {
+            set: {},
+        },
+        "core::ub_checks::maybe_is_nonoverlapping::runtime": Nodes {
+            set: {
+                "core::panicking::panic_nounwind",
+                "std::intrinsics::cold_path",
+            },
+        },
+        "main": Nodes {
+            set: {
+                "std::vec::Vec::<T, A>::push",
+                "std::vec::Vec::<T>::new",
+            },
+        },
+        "std::alloc::Allocator::allocate": Nodes {
+            set: {},
+        },
+        "std::alloc::Allocator::deallocate": Nodes {
+            set: {},
+        },
+        "std::alloc::Allocator::grow": Nodes {
+            set: {
+                "std::alloc::Allocator::allocate",
+                "std::alloc::Allocator::deallocate",
+                "std::ptr::copy_nonoverlapping::precondition_check",
+            },
+        },
+        "std::alloc::Layout::from_size_align_unchecked::precondition_check": Nodes {
+            set: {
+                "core::panicking::panic_nounwind_fmt",
+                "std::alloc::Layout::is_size_align_valid",
+            },
+        },
+        "std::alloc::Layout::is_size_align_valid": Nodes {
+            set: {},
+        },
+        "std::alloc::Layout::repeat": Nodes {
+            set: {
+                "std::alloc::Layout::from_size_align_unchecked::precondition_check",
+                "std::intrinsics::cold_path",
+            },
+        },
+        "std::cmp::Ord::max": Nodes {
+            set: {
+                "std::cmp::PartialOrd::lt",
+            },
+        },
+        "std::cmp::Ordering::is_lt": Nodes {
+            set: {},
+        },
+        "std::cmp::PartialOrd::lt": Nodes {
+            set: {
+                "std::cmp::Ordering::is_lt",
+                "std::cmp::PartialOrd::partial_cmp",
+            },
+        },
+        "std::cmp::PartialOrd::partial_cmp": Nodes {
+            set: {},
+        },
+        "std::hint::assert_unchecked::precondition_check": Nodes {
+            set: {
+                "core::panicking::panic_nounwind_fmt",
+            },
+        },
+        "std::intrinsics::cold_path": Nodes {
+            set: {},
+        },
+        "std::intrinsics::ctpop": Nodes {
+            set: {},
+        },
+        "std::ptr::copy_nonoverlapping::precondition_check": Nodes {
+            set: {
+                "core::panicking::panic_nounwind_fmt",
+                "core::ub_checks::maybe_is_nonoverlapping::runtime",
+                "std::intrinsics::ctpop",
                 "std::rt::panic_fmt",
             },
         },
-        "std::intrinsics::ctpop": Visitor {
-            callees: {},
+        "std::rt::panic_fmt": Nodes {
+            set: {},
         },
-        "core::ub_checks::maybe_is_nonoverlapping::runtime": Visitor {
-            callees: {
-                "std::intrinsics::cold_path",
-                "core::panicking::panic_nounwind",
+        "std::vec::Vec::<T, A>::push": Nodes {
+            set: {
+                "std::vec::Vec::<T, A>::push_mut",
             },
         },
-        "core::panicking::panic_nounwind": Visitor {
-            callees: {},
+        "std::vec::Vec::<T, A>::push_mut": Nodes {
+            set: {
+                "alloc::raw_vec::RawVec::<T, A>::grow_one",
+            },
         },
-        "std::rt::panic_fmt": Visitor {
-            callees: {},
+        "std::vec::Vec::<T>::new": Nodes {
+            set: {},
         },
-        "std::alloc::Allocator::deallocate": Visitor {
-            callees: {},
+    },
+    back_edges: {
+        "alloc::raw_vec::RawVec::<T, A>::grow_one": Nodes {
+            set: {
+                "std::vec::Vec::<T, A>::push_mut",
+            },
         },
-        "alloc::raw_vec::handle_error": Visitor {
-            callees: {},
+        "alloc::raw_vec::RawVecInner::<A>::current_memory": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::finish_grow",
+            },
+        },
+        "alloc::raw_vec::RawVecInner::<A>::finish_grow": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::grow_amortized",
+            },
+        },
+        "alloc::raw_vec::RawVecInner::<A>::grow_amortized": Nodes {
+            set: {
+                "alloc::raw_vec::RawVec::<T, A>::grow_one",
+            },
+        },
+        "alloc::raw_vec::handle_error": Nodes {
+            set: {
+                "alloc::raw_vec::RawVec::<T, A>::grow_one",
+            },
+        },
+        "core::num::<impl usize>::unchecked_mul::precondition_check": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::current_memory",
+            },
+        },
+        "core::panicking::panic_nounwind": Nodes {
+            set: {
+                "core::ub_checks::maybe_is_nonoverlapping::runtime",
+            },
+        },
+        "core::panicking::panic_nounwind_fmt": Nodes {
+            set: {
+                "core::num::<impl usize>::unchecked_mul::precondition_check",
+                "std::alloc::Layout::from_size_align_unchecked::precondition_check",
+                "std::hint::assert_unchecked::precondition_check",
+                "std::ptr::copy_nonoverlapping::precondition_check",
+            },
+        },
+        "core::ub_checks::maybe_is_nonoverlapping::runtime": Nodes {
+            set: {
+                "std::ptr::copy_nonoverlapping::precondition_check",
+            },
+        },
+        "std::alloc::Allocator::allocate": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::finish_grow",
+                "std::alloc::Allocator::grow",
+            },
+        },
+        "std::alloc::Allocator::deallocate": Nodes {
+            set: {
+                "std::alloc::Allocator::grow",
+            },
+        },
+        "std::alloc::Allocator::grow": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::finish_grow",
+            },
+        },
+        "std::alloc::Layout::from_size_align_unchecked::precondition_check": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::current_memory",
+                "std::alloc::Layout::repeat",
+            },
+        },
+        "std::alloc::Layout::is_size_align_valid": Nodes {
+            set: {
+                "std::alloc::Layout::from_size_align_unchecked::precondition_check",
+            },
+        },
+        "std::alloc::Layout::repeat": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::finish_grow",
+            },
+        },
+        "std::cmp::Ord::max": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::grow_amortized",
+            },
+        },
+        "std::cmp::Ordering::is_lt": Nodes {
+            set: {
+                "std::cmp::PartialOrd::lt",
+            },
+        },
+        "std::cmp::PartialOrd::lt": Nodes {
+            set: {
+                "std::cmp::Ord::max",
+            },
+        },
+        "std::cmp::PartialOrd::partial_cmp": Nodes {
+            set: {
+                "std::cmp::PartialOrd::lt",
+            },
+        },
+        "std::hint::assert_unchecked::precondition_check": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::finish_grow",
+            },
+        },
+        "std::intrinsics::cold_path": Nodes {
+            set: {
+                "alloc::raw_vec::RawVecInner::<A>::grow_amortized",
+                "core::ub_checks::maybe_is_nonoverlapping::runtime",
+                "std::alloc::Layout::repeat",
+            },
+        },
+        "std::intrinsics::ctpop": Nodes {
+            set: {
+                "std::ptr::copy_nonoverlapping::precondition_check",
+            },
+        },
+        "std::ptr::copy_nonoverlapping::precondition_check": Nodes {
+            set: {
+                "std::alloc::Allocator::grow",
+            },
+        },
+        "std::rt::panic_fmt": Nodes {
+            set: {
+                "std::ptr::copy_nonoverlapping::precondition_check",
+            },
+        },
+        "std::vec::Vec::<T, A>::push": Nodes {
+            set: {
+                "main",
+            },
+        },
+        "std::vec::Vec::<T, A>::push_mut": Nodes {
+            set: {
+                "std::vec::Vec::<T, A>::push",
+            },
+        },
+        "std::vec::Vec::<T>::new": Nodes {
+            set: {
+                "main",
+            },
         },
     },
 }

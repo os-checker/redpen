@@ -26,43 +26,65 @@ fn main() {
 }
 
 fn analysis() -> ControlFlow<(), ()> {
-    let mut reachability = Reachability::default();
+    let mut call_graph = CallGraph::default();
     let local_crate = rustc_public::local_crate();
 
     for f in local_crate.fn_defs() {
-        reachability.reach_in_depth(FnItem(f));
+        call_graph.reach_in_depth(FnItem(f));
     }
 
-    reachability.print();
+    call_graph.sort();
+    call_graph.print();
     ControlFlow::Break(())
 }
 
 #[derive(Debug, Default)]
-struct Reachability {
-    map: IndexMap<FnItem, Visitor>,
+struct CallGraph {
+    edges: IndexMap<FnItem, Nodes>,
+    back_edges: IndexMap<FnItem, Nodes>,
 }
 
-impl Reachability {
+impl CallGraph {
     /// Reach crate function items as entries.
     fn reach_in_depth(&mut self, fn_item: FnItem) {
-        if self.map.contains_key(&fn_item) {
+        if self.edges.contains_key(&fn_item) {
             // The fn item has been reached before.
             return;
         }
 
-        let mut visitor = Visitor::default();
+        let mut nodes = Nodes::default();
         if let Some(body) = fn_item.0.body() {
-            visitor.visit_body(&body);
+            nodes.visit_body(&body);
         }
 
         // Add direct callees on callees.
-        let callees: IndexSet<_> = visitor.callees.iter().copied().collect();
+        let callees: IndexSet<_> = nodes.set.iter().copied().collect();
 
-        self.map.insert(fn_item, visitor);
+        // Add reverse call relations.
+        for &callee in &callees {
+            self.back_edges
+                .entry(callee)
+                .and_modify(|caller| _ = caller.set.insert(fn_item))
+                .or_insert_with(|| Nodes {
+                    set: IndexSet::from([fn_item]),
+                });
+        }
+
+        // Add direct callees nodes. (caller -> callees)
+        self.edges.insert(fn_item, nodes);
 
         for callee in callees {
             // Recurse.
             self.reach_in_depth(callee);
+        }
+    }
+
+    /// Sort keys and values by fn names.
+    fn sort(&mut self) {
+        self.edges.sort_by(|f1, _, f2, _| f1.cmp(f2));
+        self.back_edges.sort_by(|f1, _, f2, _| f1.cmp(f2));
+        for node in self.edges.values_mut().chain(self.back_edges.values_mut()) {
+            node.set.sort_by(|f1, f2| f1.cmp(f2));
         }
     }
 
@@ -72,15 +94,15 @@ impl Reachability {
 }
 
 #[derive(Debug, Default)]
-struct Visitor {
-    callees: IndexSet<FnItem>,
+struct Nodes {
+    set: IndexSet<FnItem>,
 }
 
-impl MirVisitor for Visitor {
+impl MirVisitor for Nodes {
     fn visit_ty(&mut self, ty: &Ty, _: Location) {
         // We don't need GenericArgs, focusing on the function item.
         if let TyKind::RigidTy(RigidTy::FnDef(fn_def, _)) = ty.kind() {
-            self.callees.insert(FnItem(fn_def));
+            self.set.insert(FnItem(fn_def));
         }
         self.super_ty(ty);
     }
@@ -92,5 +114,15 @@ struct FnItem(FnDef);
 impl fmt::Debug for FnItem {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.name().fmt(f)
+    }
+}
+impl PartialOrd for FnItem {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for FnItem {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.0.name().cmp(&other.0.name())
     }
 }
