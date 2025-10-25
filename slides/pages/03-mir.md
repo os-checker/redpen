@@ -426,7 +426,32 @@ BasicBlock { // bb1 (BasicBlockIdx=1)
 
 <CodeblockSmallSized>
 
+```rust
+pub trait MirVisitor {
+    fn visit_body(&mut self, body: &Body) { ... }
+    fn super_body(&mut self, body: &Body) { ... }
+    fn visit_ty(&mut self, ty: &Ty) { ... }
+    fn super_ty(&mut self, ty: &Ty) { ... }
+    ...
+}
+```
 
+</CodeblockSmallSized>
+
+* [rustc_public::mir::visit](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/mir/visit/index.html) 文档
+* [rustc_public::mir::visit::MirVisitor](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/mir/visit/trait.MirVisitor.html)
+  * `visit_<item>` 默认调用 `super_<item>`
+  * `super_<item>` 默认解构 `<item>` 的子项 `<sub_item>`，并对所有子项调用 `visit_<sub_item>`
+
+使用方式：
+* 定义一个数据结构，并实现 `MirVisitor` 来遍历 MIR 覆盖你感兴趣的目标结构 `<item>`
+* 覆盖那个 `visit_<item>` 实现，并调用 `self.super_<item>` 继续在子项上遍历
+
+示例 `traverse-mir.rs`：收集被实际执行的函数调用。
+
+---
+
+<CodeblockSmallSized>
 <TwoColumns>
 
 <template #left>
@@ -484,3 +509,49 @@ collector = CalleeCollector {
 ```
 
 </CodeblockSmallSized>
+
+---
+
+<CodeblockSmallSized>
+
+```rust {4,8-12}
+impl MirVisitor for CalleeCollector {
+    fn visit_ty(&mut self, ty: &Ty, _: Location) {
+        if let TyKind::RigidTy(RigidTy::FnDef(fn_def, generics)) = ty.kind() {
+            let opt_instance = Instance::resolve(fn_def, &generics);
+
+            self.v_callee.push(Callee { fn_def, generics });
+
+            if let Ok(instance) = opt_instance
+                && let Some(body) = instance.body()
+            {
+                self.visit_body(&body);
+            }
+        }
+        self.super_ty(ty);
+    }
+}
+```
+
+```rust
+callees.len() = 85
+callees = [
+    "std::vec::Vec::<T>::new",
+    "std::vec::Vec::<T, A>::push", "std::vec::Vec::<T, A>::push_mut",
+    "alloc::raw_vec::RawVec::<T, A>::grow_one", "alloc::raw_vec::RawVecInner::<A>::grow_amortized",
+    "std::intrinsics::cold_path",
+    "std::cmp::Ord::max", "std::cmp::PartialOrd::lt", "std::cmp::Ord::max", "std::cmp::PartialOrd::lt",
+    "alloc::raw_vec::RawVecInner::<A>::finish_grow",
+    ...
+]
+```
+
+</CodeblockSmallSized>
+
+<div class="relative -top-92 left-140">
+
+* [Instance::resolve](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/mir/mono/struct.Instance.html#method.resolve)
+* [Instance::body](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/mir/mono/struct.Instance.html#method.body)
+
+</div>
+
