@@ -1,6 +1,8 @@
 # Rust 编译器中间表示
 
+<div class="columns-2">
 <Toc mode="onlyCurrentTree" />
+</div>
 
 <BackToTOC />
 

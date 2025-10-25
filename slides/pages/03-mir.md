@@ -86,7 +86,7 @@ pub struct Body {
 * [CrateItem::body](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/struct.CrateItem.html#method.body)
 * [MirVisitor::visit_body](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/mir/visit/trait.MirVisitor.html#method.visit_body)
 
-示例：`examples/vec-push-mir.rs`
+示例：[`examples/vec-push-mir.rs`](https://github.com/os-checker/redpen/blob/main/examples/vec-push/run.sh)
 
 <div class="flex items-center justify-between gap-4">
 <div>
@@ -415,6 +415,71 @@ BasicBlock { // bb1 (BasicBlockIdx=1)
       ],
       destination: _2, target: Some(2), unwind: Cleanup(4)
   } }
+}
+```
+
+</CodeblockSmallSized>
+
+---
+
+### 遍历 MIR
+
+<CodeblockSmallSized>
+
+
+<TwoColumns>
+
+<template #left>
+
+```rust {5-7}
+fn analysis() -> ControlFlow<(), ()> {
+    let mut collector = CalleeCollector::default();
+    let local_crate = rustc_public::local_crate();
+    for f in local_crate.fn_defs() {
+        if let Some(body) = f.body() {
+            collector.visit_body(&body);
+        }
+    }
+    dbg!(&collector);
+    ControlFlow::Break(())
+}
+```
+
+</template>
+
+<template #right>
+
+```rust {3-11}
+struct Callee { fn_def: FnDef, generics: GenericArgs }
+struct CalleeCollector { v_callee: Vec<Callee> }
+impl MirVisitor for CalleeCollector {
+    fn visit_ty(&mut self, ty: &Ty, _: Location) {
+        if let TyKind::RigidTy(
+            RigidTy::FnDef(fn_def, generics)) = ty.kind() {
+            self.v_callee.push(Callee { fn_def, generics });
+        }
+        self.super_ty(ty);
+    }
+}
+```
+
+</template>
+
+</TwoColumns>
+
+```bash
+$ cargo run --example traverse-mir -- examples/vec-push/vec-push.rs
+collector = CalleeCollector {
+   v_callee: [
+       Callee {
+           fn_def: "std::vec::Vec::<T>::new",
+           generics: [ "Int(I32)" ]
+       },
+       Callee {
+           fn_def: "std::vec::Vec::<T, A>::push",
+           generics: [ "Int(I32)", "Adt(\"std::alloc::Global\", GenericArgs([]))" ]
+       }
+   ]
 }
 ```
 
