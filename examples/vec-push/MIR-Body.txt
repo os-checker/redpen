@@ -1,0 +1,432 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running `target/debug/examples/vec-push-mir examples/vec-push/vec-push.rs`
+[examples/vec-push-mir.rs:22:17] body = Body {
+    blocks: [
+        BasicBlock {
+            statements: [],
+            terminator: Terminator {
+                kind: Call {
+                    func: Constant(
+                        ConstOperand {
+                            span: Span {
+                                id: 0,
+                                repr: "examples/vec-push/vec-push.rs:3:19: 3:27",
+                            },
+                            user_ty: Some(
+                                0,
+                            ),
+                            const_: MirConst {
+                                kind: ZeroSized,
+                                ty: Ty {
+                                    id: 0,
+                                    kind: RigidTy(
+                                        FnDef(
+                                            FnDef(
+                                                DefId {
+                                                    id: 1,
+                                                    name: "std::vec::Vec::<T>::new",
+                                                },
+                                            ),
+                                            GenericArgs(
+                                                [
+                                                    Type(
+                                                        Ty {
+                                                            id: 2,
+                                                            kind: RigidTy(
+                                                                Int(
+                                                                    I32,
+                                                                ),
+                                                            ),
+                                                        },
+                                                    ),
+                                                ],
+                                            ),
+                                        ),
+                                    ),
+                                },
+                                id: MirConstId(
+                                    0,
+                                ),
+                            },
+                        },
+                    ),
+                    args: [],
+                    destination: _1,
+                    target: Some(
+                        1,
+                    ),
+                    unwind: Continue,
+                },
+                span: Span {
+                    id: 1,
+                    repr: "examples/vec-push/vec-push.rs:3:19: 3:29",
+                },
+            },
+        },
+        BasicBlock {
+            statements: [
+                Statement {
+                    kind: Assign(
+                        _3,
+                        Ref(
+                            Region {
+                                kind: ReErased,
+                            },
+                            Mut {
+                                kind: TwoPhaseBorrow,
+                            },
+                            _1,
+                        ),
+                    ),
+                    span: Span {
+                        id: 5,
+                        repr: "examples/vec-push/vec-push.rs:4:5: 4:8",
+                    },
+                },
+            ],
+            terminator: Terminator {
+                kind: Call {
+                    func: Constant(
+                        ConstOperand {
+                            span: Span {
+                                id: 2,
+                                repr: "examples/vec-push/vec-push.rs:4:9: 4:13",
+                            },
+                            user_ty: None,
+                            const_: MirConst {
+                                kind: ZeroSized,
+                                ty: Ty {
+                                    id: 1,
+                                    kind: RigidTy(
+                                        FnDef(
+                                            FnDef(
+                                                DefId {
+                                                    id: 2,
+                                                    name: "std::vec::Vec::<T, A>::push",
+                                                },
+                                            ),
+                                            GenericArgs(
+                                                [
+                                                    Type(
+                                                        Ty {
+                                                            id: 2,
+                                                            kind: RigidTy(
+                                                                Int(
+                                                                    I32,
+                                                                ),
+                                                            ),
+                                                        },
+                                                    ),
+                                                    Type(
+                                                        Ty {
+                                                            id: 6,
+                                                            kind: RigidTy(
+                                                                Adt(
+                                                                    AdtDef(
+                                                                        DefId {
+                                                                            id: 3,
+                                                                            name: "std::alloc::Global",
+                                                                        },
+                                                                    ),
+                                                                    GenericArgs(
+                                                                        [],
+                                                                    ),
+                                                                ),
+                                                            ),
+                                                        },
+                                                    ),
+                                                ],
+                                            ),
+                                        ),
+                                    ),
+                                },
+                                id: MirConstId(
+                                    1,
+                                ),
+                            },
+                        },
+                    ),
+                    args: [
+                        Move(
+                            _3,
+                        ),
+                        Constant(
+                            ConstOperand {
+                                span: Span {
+                                    id: 3,
+                                    repr: "examples/vec-push/vec-push.rs:4:14: 4:15",
+                                },
+                                user_ty: None,
+                                const_: MirConst {
+                                    kind: Allocated(
+                                        Allocation {
+                                            bytes: [
+                                                Some(
+                                                    1,
+                                                ),
+                                                Some(
+                                                    0,
+                                                ),
+                                                Some(
+                                                    0,
+                                                ),
+                                                Some(
+                                                    0,
+                                                ),
+                                            ],
+                                            provenance: ProvenanceMap {
+                                                ptrs: [],
+                                            },
+                                            align: 4,
+                                            mutability: Mut,
+                                        },
+                                    ),
+                                    ty: Ty {
+                                        id: 2,
+                                        kind: RigidTy(
+                                            Int(
+                                                I32,
+                                            ),
+                                        ),
+                                    },
+                                    id: MirConstId(
+                                        2,
+                                    ),
+                                },
+                            },
+                        ),
+                    ],
+                    destination: _2,
+                    target: Some(
+                        2,
+                    ),
+                    unwind: Cleanup(
+                        4,
+                    ),
+                },
+                span: Span {
+                    id: 4,
+                    repr: "examples/vec-push/vec-push.rs:4:5: 4:16",
+                },
+            },
+        },
+        BasicBlock {
+            statements: [],
+            terminator: Terminator {
+                kind: Drop {
+                    place: _1,
+                    target: 3,
+                    unwind: Continue,
+                },
+                span: Span {
+                    id: 6,
+                    repr: "examples/vec-push/vec-push.rs:5:1: 5:2",
+                },
+            },
+        },
+        BasicBlock {
+            statements: [],
+            terminator: Terminator {
+                kind: Return,
+                span: Span {
+                    id: 7,
+                    repr: "examples/vec-push/vec-push.rs:5:2: 5:2",
+                },
+            },
+        },
+        BasicBlock {
+            statements: [],
+            terminator: Terminator {
+                kind: Drop {
+                    place: _1,
+                    target: 5,
+                    unwind: Terminate,
+                },
+                span: Span {
+                    id: 6,
+                    repr: "examples/vec-push/vec-push.rs:5:1: 5:2",
+                },
+            },
+        },
+        BasicBlock {
+            statements: [],
+            terminator: Terminator {
+                kind: Resume,
+                span: Span {
+                    id: 8,
+                    repr: "examples/vec-push/vec-push.rs:2:1: 5:2",
+                },
+            },
+        },
+    ],
+    locals: [
+        LocalDecl {
+            ty: Ty {
+                id: 3,
+                kind: RigidTy(
+                    Tuple(
+                        [],
+                    ),
+                ),
+            },
+            span: Span {
+                id: 9,
+                repr: "examples/vec-push/vec-push.rs:2:10: 2:10",
+            },
+            mutability: Mut,
+        },
+        LocalDecl {
+            ty: Ty {
+                id: 4,
+                kind: RigidTy(
+                    Adt(
+                        AdtDef(
+                            DefId {
+                                id: 4,
+                                name: "std::vec::Vec",
+                            },
+                        ),
+                        GenericArgs(
+                            [
+                                Type(
+                                    Ty {
+                                        id: 2,
+                                        kind: RigidTy(
+                                            Int(
+                                                I32,
+                                            ),
+                                        ),
+                                    },
+                                ),
+                                Type(
+                                    Ty {
+                                        id: 6,
+                                        kind: RigidTy(
+                                            Adt(
+                                                AdtDef(
+                                                    DefId {
+                                                        id: 3,
+                                                        name: "std::alloc::Global",
+                                                    },
+                                                ),
+                                                GenericArgs(
+                                                    [],
+                                                ),
+                                            ),
+                                        ),
+                                    },
+                                ),
+                            ],
+                        ),
+                    ),
+                ),
+            },
+            span: Span {
+                id: 10,
+                repr: "examples/vec-push/vec-push.rs:3:9: 3:16",
+            },
+            mutability: Mut,
+        },
+        LocalDecl {
+            ty: Ty {
+                id: 3,
+                kind: RigidTy(
+                    Tuple(
+                        [],
+                    ),
+                ),
+            },
+            span: Span {
+                id: 4,
+                repr: "examples/vec-push/vec-push.rs:4:5: 4:16",
+            },
+            mutability: Not,
+        },
+        LocalDecl {
+            ty: Ty {
+                id: 5,
+                kind: RigidTy(
+                    Ref(
+                        Region {
+                            kind: ReErased,
+                        },
+                        Ty {
+                            id: 4,
+                            kind: RigidTy(
+                                Adt(
+                                    AdtDef(
+                                        DefId {
+                                            id: 4,
+                                            name: "std::vec::Vec",
+                                        },
+                                    ),
+                                    GenericArgs(
+                                        [
+                                            Type(
+                                                Ty {
+                                                    id: 2,
+                                                    kind: RigidTy(
+                                                        Int(
+                                                            I32,
+                                                        ),
+                                                    ),
+                                                },
+                                            ),
+                                            Type(
+                                                Ty {
+                                                    id: 6,
+                                                    kind: RigidTy(
+                                                        Adt(
+                                                            AdtDef(
+                                                                DefId {
+                                                                    id: 3,
+                                                                    name: "std::alloc::Global",
+                                                                },
+                                                            ),
+                                                            GenericArgs(
+                                                                [],
+                                                            ),
+                                                        ),
+                                                    ),
+                                                },
+                                            ),
+                                        ],
+                                    ),
+                                ),
+                            ),
+                        },
+                        Mut,
+                    ),
+                ),
+            },
+            span: Span {
+                id: 5,
+                repr: "examples/vec-push/vec-push.rs:4:5: 4:8",
+            },
+            mutability: Mut,
+        },
+    ],
+    arg_count: 0,
+    var_debug_info: [
+        VarDebugInfo {
+            name: "vec",
+            source_info: SourceInfo {
+                span: Span {
+                    id: 10,
+                    repr: "examples/vec-push/vec-push.rs:3:9: 3:16",
+                },
+                scope: 1,
+            },
+            composite: None,
+            value: Place(
+                _1,
+            ),
+            argument_index: None,
+        },
+    ],
+    spread_arg: None,
+    span: Span {
+        id: 8,
+        repr: "examples/vec-push/vec-push.rs:2:1: 5:2",
+    },
+}

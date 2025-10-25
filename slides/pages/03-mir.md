@@ -29,32 +29,90 @@
 MIR = Middle-Level Intermediate Representation
 ([Ref](https://rustc-dev-guide.rust-lang.org/mir/index.html))
 
+* 单态化函数实例的控制流图
+* 以基本块为单位，由语句（节点）和终止符（边）构成
+  * 语句：对栈上的值执行赋值、标记等操作
+  * 终止符：控制流跳转（函数调用、返回、unwind 等）
+  * 没有嵌套的表达式
+* 完全显式的类型和操作
+
 </div>
+</template>
+</TwoColumns>
+
+---
+
+### MIR Body
+
+<div class="h-6" />
+
+<CodeblockSmallSized>
+<TwoColumns>
+
+<template #left>
 
 ```rust
 pub struct Body {
+    // A node in the MIR control-flow graph.
     blocks: Vec<BasicBlock>,
+    // Declarations of locals within the function.
     locals: Vec<LocalDecl>,
+    // The number of arguments this function takes.
     arg_count: usize,
+    // Debug information of user variables, including captures.
     var_debug_info: Vec<VarDebugInfo>,
+    // Mark an argument as getting passed 
+    // as its individual components at the LLVM level.
     spread_arg: Option<Local>,
+    // The span that covers the entire function body.
     span: Span,
 }
 ```
 
 <div class="text-center">
 
-[`rustc_public::mir::Body`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/mir/struct.Body.html)
+[rustc_public::mir::Body](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/mir/struct.Body.html)
 
 </div>
 
 </template>
 
+<template #right>
+
+获取 Body 的方式
+
+* [FnDef::body](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/ty/struct.FnDef.html#method.body)
+* [Instance::body](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/mir/mono/struct.Instance.html#method.body)
+* [CrateItem::body](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/struct.CrateItem.html#method.body)
+* [MirVisitor::visit_body](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_public/mir/visit/trait.MirVisitor.html#method.visit_body)
+
+示例：`examples/vec-push-mir.rs`
+
+<div class="flex items-center justify-between gap-4">
+<div>
+
+[Demo](https://play.rust-lang.org/?version=nightly&mode=debug&edition=2024&gist=abd4c3f618b81d9f241db11efee09b80)
+
+</div>
+
+<div class="flex-1">
+
+```rust
+let mut vec = Vec::new();
+vec.push(1);
+```
+
+</div>
+
+</div>
+</template>
 </TwoColumns>
+</CodeblockSmallSized>
+
 
 ---
 
-### MIR Body (精简版)
+### MIR 局部变量
 
 <div class="h-2" />
 
@@ -113,25 +171,6 @@ pub struct VarDebugInfo {
 
 <v-click>
 
-<div class="flex items-center justify-between gap-4 py-4">
-
-<div>
-
-[Demo](https://play.rust-lang.org/?version=nightly&mode=debug&edition=2024&gist=abd4c3f618b81d9f241db11efee09b80)
-
-</div>
-
-<div class="flex-1">
-
-```rust
-let mut vec = Vec::new();
-vec.push(1);
-```
-
-</div>
-
-</div>
-
 <TwoColumns>
 
 <template #left>
@@ -170,11 +209,68 @@ scope 1 {
 
 ---
 
+### MIR - Control Flow Graph - BasicBlock
+
 <CodeblockSmallSized>
 
 <TwoColumns>
 
 <template #left>
+
+![](../../examples/vec-push/main.svg)
+
+</template>
+
+<template #right>
+
+```rust
+bb0: {
+    _1 = Vec::<i32>::new() -> [return: bb1, unwind continue];
+}
+
+bb1: {
+    _3 = &mut _1;
+    _2 = Vec::<i32>::push(move _3, const 1_i32)
+          -> [return: bb2, unwind: bb4];
+}
+
+bb2: {
+    drop(_1) -> [return: bb3, unwind continue];
+}
+
+bb3: { return; }
+
+bb4 (cleanup): {
+    drop(_1) -> [return: bb5, unwind terminate(cleanup)];
+}
+
+bb5 (cleanup): { resume; }
+```
+
+<div class="text-sm leading-tight">
+
+rustc vec-push.rs -Zdump-mir=main -Zdump-mir-graphviz
+
+dot -Tsvg mir_dump/vec_push.main.-------.renumber.0.dot -o main.svg
+
+</div>
+</template>
+
+</TwoColumns>
+
+</CodeblockSmallSized>
+
+<style> p { margin: 0; } </style>
+
+---
+
+<CodeblockSmallSized>
+
+<TwoColumns>
+
+<template #left>
+
+<div class="border border-red-400 px-1">
 
 ```rust
 pub struct BasicBlock {
@@ -182,6 +278,8 @@ pub struct BasicBlock {
     terminator: Terminator,
 }
 ```
+
+</div>
 
 ```rust
 pub enum StatementKind {
@@ -229,6 +327,19 @@ pub enum TerminatorKind {
 }
 ```
 
+```rust
+bb0: {
+    _1 = Vec::<i32>::new() -> [return: bb1, unwind continue];
+}
+bb1: {
+    _3 = &mut _1;
+    _2 = Vec::<i32>::push(move _3, const 1_i32)
+          -> [return: bb2, unwind: bb4];
+}
+bb2: { drop(_1) -> [return: bb3, unwind continue]; }
+bb3: { return; }
+```
+
 </template>
 
 </TwoColumns>
@@ -237,29 +348,74 @@ pub enum TerminatorKind {
 
 ---
 
-```rust
+### BasicBlock - Terminator
+
+<CodeblockSmallSized>
+
+```rust {2}{lines: true}
 bb0: {
     _1 = Vec::<i32>::new() -> [return: bb1, unwind continue];
 }
+// bb0.terminator.successors() 返回 `[1]`
+```
 
-bb1: {
-    _3 = &mut _1;
-    _2 = Vec::<i32>::push(move _3, const 1_i32) -> [return: bb2, unwind: bb4];
-}
-
-bb2: {
-    drop(_1) -> [return: bb3, unwind continue];
-}
-
-bb3: {
-    return;
-}
-
-bb4 (cleanup): {
-    drop(_1) -> [return: bb5, unwind terminate(cleanup)];
-}
-
-bb5 (cleanup): {
-    resume;
+```rust {3-15}{lines: true}
+BasicBlock { // bb0 (BasicBlockIdx=0)
+  statements: [],
+  terminator: Terminator {
+    kind: Call {
+      func: Constant(
+        ConstOperand {
+          span: Span { repr: "examples/vec-push/vec-push.rs:3:19: 3:27", },
+          const_: MirConst { ty: Ty { kind: RigidTy(FnDef(
+                    FnDef(DefId { id: 1, name: "std::vec::Vec::<T>::new" }),
+                    GenericArgs([Type(Ty { id: 2, kind: RigidTy(Int(I32)) })]),
+          ) ) } }
+        }
+      ),
+      args: [], destination: _1, target: Some(1), unwind: Continue,
+    }
+  }
 }
 ```
+
+下一个基本块：`impl Terminator { pub fn successors(&self) -> Vec<BasicBlockIdx> }`
+
+</CodeblockSmallSized>
+
+---
+
+### BasicBlock - Statement
+
+<CodeblockSmallSized>
+
+```rust {2-3}{lines: true}
+bb1: {
+    _3 = &mut _1; // Statement
+    _2 = Vec::<i32>::push(move _3, const 1_i32) -> [return: bb2, unwind: bb4]; // Terminator
+}
+// bb1.terminator.successors() 返回 `[2, 4]`
+```
+
+```rust
+BasicBlock { // bb1 (BasicBlockIdx=1)
+  statements: [Statement {
+    kind: Assign(_3, Ref(Region { kind: ReErased }, Mut { kind: TwoPhaseBorrow }, _1))
+  }],
+  terminator: Terminator { Call {
+      func: { FnDef("std::vec::Vec::<T, A>::push", GenericArgs([ Int(I32), Adt("std::alloc::Global") ]) },
+      args: [
+        Move(_3),
+        MirConst {
+          kind: Allocation {
+            bytes: [Some(1), Some(0), Some(0), Some(0) ], provenance, align: 4, mutability: Mut
+          },
+          ty: Int(I32)
+        }
+      ],
+      destination: _2, target: Some(2), unwind: Cleanup(4)
+  } }
+}
+```
+
+</CodeblockSmallSized>
