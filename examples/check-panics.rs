@@ -3,6 +3,20 @@
 //! `cargo run --example check-panics -- examples/vec-push/vec-push.rs`
 //!
 //! ```rust,ignore
+//! self.backtrace_path_starting_by_name(PANIC) = [
+//!     [
+//!         "core::panicking::panic_nounwind",
+//!         "core::ub_checks::maybe_is_nonoverlapping::runtime",
+//!         "std::ptr::copy_nonoverlapping::precondition_check",
+//!         "std::alloc::Allocator::grow",
+//!         "alloc::raw_vec::RawVecInner::<A>::finish_grow",
+//!         "alloc::raw_vec::RawVecInner::<A>::grow_amortized",
+//!         "alloc::raw_vec::RawVec::<T, A>::grow_one",
+//!         "std::vec::Vec::<T, A>::push_mut",
+//!         "std::vec::Vec::<T, A>::push",
+//!         "main",
+//!     ],
+//! ]
 //! ```
 #![feature(rustc_private)]
 
@@ -88,8 +102,53 @@ impl CallGraph {
         }
     }
 
+    /// Search FnItem/DefId.
+    fn get_fn_item(&self, fn_name: &str) -> Option<&FnItem> {
+        self.edges.keys().find(|f| f.is(fn_name))
+    }
+
+    /// From a nested callee to the top-level crate fn item (caller).
+    fn backtrace_path(&self, fn_item: FnItem) -> Vec<Vec<FnItem>> {
+        let mut path = Vec::new();
+        let mut v_path = Vec::new();
+
+        path.push(fn_item.clone());
+        self.add_back_path(&fn_item, &mut path, &mut v_path);
+
+        v_path
+    }
+
+    fn add_back_path(&self, f: &FnItem, v: &mut Vec<FnItem>, v_path: &mut Vec<Vec<FnItem>>) {
+        if let Some(callers) = self.back_edges.get(f) {
+            for caller in &callers.set {
+                v.push(caller.clone());
+                // Recurse.
+                self.add_back_path(caller, v, v_path);
+            }
+            return;
+        }
+        // The outmost caller doesn't have any caller, reaching the end.
+        v_path.push(v.clone());
+        v.pop();
+    }
+
+    fn backtrace_path_starting_by_name(&self, fn_name: &str) -> Vec<Vec<FnItem>> {
+        self.get_fn_item(fn_name)
+            .cloned()
+            .map(|f| self.backtrace_path(f))
+            .unwrap_or_default()
+    }
+
     fn print(&self) {
-        dbg!(self);
+        const PANIC: &str = "core::panicking::panic_nounwind";
+        const PANIC_FMT: &str = "core::panicking::panic_nounwind_fmt";
+        dbg!(
+            self,
+            self.backtrace_path_starting_by_name(PANIC),
+            self.backtrace_path_starting_by_name(PANIC_FMT),
+            // We can cut through any call to trace back.
+            self.backtrace_path_starting_by_name("std::alloc::Allocator::grow"),
+        );
     }
 }
 
@@ -140,5 +199,9 @@ impl FnItem {
             def: fn_def,
             name: fn_def.name().into(),
         }
+    }
+
+    fn is(&self, name: &str) -> bool {
+        *self.name == *name
     }
 }
