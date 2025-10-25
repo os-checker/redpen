@@ -18,7 +18,7 @@ use rustc_public::{
     mir::{MirVisitor, visit::Location},
     ty::{FnDef, RigidTy, Ty, TyKind},
 };
-use std::{fmt, ops::ControlFlow};
+use std::{fmt, ops::ControlFlow, rc::Rc};
 
 fn main() {
     let rustc_args: Vec<_> = std::env::args().collect();
@@ -30,7 +30,7 @@ fn analysis() -> ControlFlow<(), ()> {
     let local_crate = rustc_public::local_crate();
 
     for f in local_crate.fn_defs() {
-        call_graph.reach_in_depth(FnItem(f));
+        call_graph.reach_in_depth(f.into());
     }
 
     call_graph.sort();
@@ -53,20 +53,20 @@ impl CallGraph {
         }
 
         let mut nodes = Nodes::default();
-        if let Some(body) = fn_item.0.body() {
+        if let Some(body) = fn_item.def.body() {
             nodes.visit_body(&body);
         }
 
         // Add direct callees on callees.
-        let callees: IndexSet<_> = nodes.set.iter().copied().collect();
+        let callees: IndexSet<_> = nodes.set.iter().cloned().collect();
 
         // Add reverse call relations.
-        for &callee in &callees {
+        for callee in &callees {
             self.back_edges
-                .entry(callee)
-                .and_modify(|caller| _ = caller.set.insert(fn_item))
+                .entry(callee.clone())
+                .and_modify(|caller| _ = caller.set.insert(fn_item.clone()))
                 .or_insert_with(|| Nodes {
-                    set: IndexSet::from([fn_item]),
+                    set: IndexSet::from([fn_item.clone()]),
                 });
         }
 
@@ -102,18 +102,21 @@ impl MirVisitor for Nodes {
     fn visit_ty(&mut self, ty: &Ty, _: Location) {
         // We don't need GenericArgs, focusing on the function item.
         if let TyKind::RigidTy(RigidTy::FnDef(fn_def, _)) = ty.kind() {
-            self.set.insert(FnItem(fn_def));
+            self.set.insert(fn_def.into());
         }
         self.super_ty(ty);
     }
 }
 
 /// A FnDef simplified on Debug trait and `{:?}` printing.
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
-struct FnItem(FnDef);
+#[derive(Clone, PartialEq, Eq, Hash)]
+struct FnItem {
+    def: FnDef,
+    name: Rc<str>,
+}
 impl fmt::Debug for FnItem {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.name().fmt(f)
+        self.name.fmt(f)
     }
 }
 impl PartialOrd for FnItem {
@@ -123,6 +126,19 @@ impl PartialOrd for FnItem {
 }
 impl Ord for FnItem {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.0.name().cmp(&other.0.name())
+        self.name.cmp(&other.name)
+    }
+}
+impl From<FnDef> for FnItem {
+    fn from(fn_def: FnDef) -> Self {
+        Self::new(fn_def)
+    }
+}
+impl FnItem {
+    fn new(fn_def: FnDef) -> Self {
+        FnItem {
+            def: fn_def,
+            name: fn_def.name().into(),
+        }
     }
 }
