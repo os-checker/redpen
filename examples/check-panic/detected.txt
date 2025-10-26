@@ -1,5 +1,13 @@
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+   Compiling redpen v0.1.0 (/home/gh-zjp-CN/redpen2)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.82s
      Running `target/debug/redpen examples/check-panic/detected.rs --crate-type=lib`
+[1m[91merror[0m[1m: A possible panic spot is found.[0m
+ [1m[94m--> [0mexamples/check-panic/detected.rs:4:12
+  [1m[94m|[0m
+[1m[94m3[0m [1m[94m|[0m pub fn a() {
+  [1m[94m|[0m [1m[94m----------[0m [1m[94mFor this function.[0m
+[1m[94m4[0m [1m[94m|[0m     panic!("This panics!");
+  [1m[94m|[0m            [1m[91m^^^^^^^^^^^^^^[0m [1m[91mThis may panic![0m
 [1m[91merror[0m[1m: A possible panic spot is found.[0m
   [1m[94m--> [0mexamples/check-panic/detected.rs:10:9
    [1m[94m|[0m

@@ -2,7 +2,7 @@ use crate::{detect::Detect, diagnostics::PanicSpots, fn_item::FnItem};
 use indexmap::{IndexMap, IndexSet};
 use rustc_middle::ty::TyCtxt;
 use rustc_public::{
-    mir::{Body, MirVisitor, Operand, visit::Location},
+    mir::{Body, MirVisitor, Operand, TerminatorKind, visit::Location},
     rustc_internal::internal,
     ty::{FnDef, RigidTy, Span, Ty, TyKind},
 };
@@ -124,7 +124,7 @@ impl CallGraph {
                     let span = body.span;
 
                     let path = self.call_path(entry, panic);
-                    let mut local_spots = LocalPanicSpot::new(&path, &body, tcx);
+                    let mut local_spots = LocalPanicSpot::new(&path, &body, detect, tcx);
                     local_spots.visit_body(&body);
                     spots.add(caller, span, local_spots.panic_spots());
                 }
@@ -157,18 +157,25 @@ pub fn contains_span(tcx: TyCtxt, large: Span, small: Span) -> bool {
     large.contains(small)
 }
 
-struct LocalPanicSpot<'tcx, 'body> {
+struct LocalPanicSpot<'tcx, 'body, 'detect> {
     tcx: TyCtxt<'tcx>,
     caller_body: &'body Body,
+    detect: &'detect Detect,
     fn_may_panic: IndexSet<FnDef>,
     panic_spots: IndexMap<FnDef, Vec<Span>>,
 }
 
-impl<'tcx, 'body> LocalPanicSpot<'tcx, 'body> {
-    fn new(path: &CallPaths, body: &'body Body, tcx: TyCtxt<'tcx>) -> Self {
+impl<'tcx, 'body, 'detect> LocalPanicSpot<'tcx, 'body, 'detect> {
+    fn new(
+        path: &CallPaths,
+        body: &'body Body,
+        detect: &'detect Detect,
+        tcx: TyCtxt<'tcx>,
+    ) -> Self {
         LocalPanicSpot {
             tcx,
             caller_body: body,
+            detect,
             fn_may_panic: path.iter().flatten().map(|a| a.def).collect(),
             panic_spots: Default::default(),
         }
@@ -187,26 +194,54 @@ impl<'tcx, 'body> LocalPanicSpot<'tcx, 'body> {
             && self.fn_may_panic.contains(&fn_def)
             && self.contains(span)
         {
-            self.panic_spots
-                .entry(fn_def)
-                .and_modify(|v| v.push(span))
-                .or_insert_with(|| vec![span]);
+            self.add(fn_def, span);
         }
+    }
+
+    fn add(&mut self, fn_def: FnDef, span: Span) {
+        self.panic_spots
+            .entry(fn_def)
+            .and_modify(|v| v.push(span))
+            .or_insert_with(|| vec![span]);
     }
 }
 
-impl MirVisitor for LocalPanicSpot<'_, '_> {
-    // fn visit_span(&mut self, span: &Span) {
-    //     if self.contains(*span) {
-    //         dbg!(span);
-    //     }
-    // }
-
+impl MirVisitor for LocalPanicSpot<'_, '_, '_> {
     fn visit_operand(&mut self, operand: &Operand, location: Location) {
         if let Ok(ty) = operand.ty(self.caller_body.locals()) {
             let span = location.span();
             self.check_panic_spot(&ty, span);
         }
         self.super_operand(operand, location);
+    }
+
+    fn visit_terminator(&mut self, term: &rustc_public::mir::Terminator, location: Location) {
+        // FIXME: the only reason to have this is to find the panic in `a`. But it's fragile,
+        // because `cargo run -- examples/check-panic/detected.rs --crate-type=lib --edition 2024`
+        // doesn't find the direct panic in `a`, while it's found with default 2015 edition.
+        if let TerminatorKind::Call { func, args, .. } = &term.kind
+            && let Ok(ty) = func.ty(self.caller_body.locals())
+            && let Some((fn_def, _)) = ty.kind().fn_def()
+            && self.detect.is_panic_fn(&fn_def)
+        {
+            for arg in args {
+                match arg {
+                    Operand::Copy(place) | Operand::Move(place) => {
+                        if let Some(decl) = self.caller_body.local_decl(place.local)
+                            && self.contains(decl.span)
+                        {
+                            self.add(fn_def, decl.span);
+                        }
+                    }
+                    Operand::Constant(const_operand) => {
+                        let span = const_operand.span;
+                        if self.contains(span) {
+                            self.add(fn_def, span);
+                        }
+                    }
+                }
+            }
+        }
+        self.super_terminator(term, location);
     }
 }
