@@ -1,4 +1,4 @@
-use crate::{detect::Detect, fn_item::FnItem};
+use crate::{detect::Detect, diagnostics::PanicSpots, fn_item::FnItem};
 use indexmap::{IndexMap, IndexSet};
 use rustc_public::{
     mir::{MirVisitor, Operand, TerminatorKind, visit::Location},
@@ -101,14 +101,15 @@ impl CallGraph {
         false
     }
 
-    pub fn diagnostic(&self, detect: &Detect) {
+    pub fn analyze(&self, detect: &Detect) -> PanicSpots {
         // dbg!(self);
         let verbose = true;
+        let mut spots = PanicSpots::default();
 
         let mut v_panic = Vec::new();
         detect.with_panic_item(|f| v_panic.push(f.clone()));
         if v_panic.is_empty() {
-            return;
+            return spots;
         };
 
         for entry in detect.entries() {
@@ -116,11 +117,13 @@ impl CallGraph {
                 if !verbose && self.reachable(entry, panic) {
                     println!("{entry:?} reaches panic");
                 } else {
+                    let caller_fn_def = entry.def;
+                    let caller = entry.def.body().unwrap();
+                    let caller_span = caller.span;
+
                     let call_path = self.call_path(entry, panic);
                     for path in &call_path {
                         dbg!(path.iter().map(|f| f.print()).collect::<Vec<_>>());
-
-                        let caller = entry.def.body().unwrap();
 
                         match path.len() {
                             // panic happens in the caller
@@ -136,7 +139,7 @@ impl CallGraph {
                                         && detect.is_panic_fn(&fn_def)
                                         && let Some(Operand::Constant(operand)) = args.first()
                                     {
-                                        _ = dbg!(operand.span)
+                                        spots.add(caller_fn_def, caller_span, operand.span);
                                     }
                                 }
                             }
@@ -149,7 +152,7 @@ impl CallGraph {
                                         && let Some((fn_def, _)) = val.ty().kind().fn_def()
                                         && fn_def == call.def
                                     {
-                                        dbg!(bb.terminator.span);
+                                        spots.add(caller_fn_def, caller_span, bb.terminator.span);
                                     }
                                 }
                             }
@@ -158,6 +161,7 @@ impl CallGraph {
                 }
             }
         }
+        spots
     }
 }
 

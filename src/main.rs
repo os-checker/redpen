@@ -11,15 +11,16 @@ mod detect;
 mod diagnostics;
 mod fn_item;
 
-use crate::{call_graph::CallGraph, detect::Detect, fn_item::FnItem};
+use crate::{call_graph::CallGraph, detect::Detect, diagnostics::SourceCode, fn_item::FnItem};
+use rustc_middle::ty::TyCtxt;
 use std::ops::ControlFlow;
 
 fn main() {
     let rustc_args: Vec<_> = std::env::args().collect();
-    _ = rustc_public::run!(&rustc_args, analysis);
+    _ = rustc_public::run_with_tcx!(&rustc_args, analysis);
 }
 
-fn analysis() -> ControlFlow<(), ()> {
+fn analysis(tcx: TyCtxt) -> ControlFlow<(), ()> {
     let mut entries = Vec::new();
     let mut call_graph = CallGraph::default();
     let local_crate = rustc_public::local_crate();
@@ -33,7 +34,12 @@ fn analysis() -> ControlFlow<(), ()> {
     call_graph.sort();
 
     let detect = Detect::new(&call_graph, entries);
-    call_graph.diagnostic(&detect);
+    let spots = call_graph.analyze(&detect);
+
+    if !spots.is_empty() {
+        let src = SourceCode::new(tcx);
+        spots.emit(&src);
+    }
 
     ControlFlow::Break(())
 }

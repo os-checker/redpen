@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+annotate-snippets = "0.12.7"
 
 [package.metadata.rust-analyzer]
 # This crate uses #![feature(rustc_private)] to access `rustc` APIs.
