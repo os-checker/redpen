@@ -34,7 +34,7 @@ fn analysis(tcx: TyCtxt) -> ControlFlow<(), ()> {
     call_graph.sort();
 
     let detect = Detect::new(&call_graph, entries);
-    let spots = call_graph.analyze(&detect);
+    let spots = call_graph.analyze(&detect, tcx);
 
     if !spots.is_empty() {
         let src = SourceCode::new(tcx);

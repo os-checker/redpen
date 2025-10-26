@@ -1,0 +1,20 @@
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running `target/debug/redpen examples/vec-push/vec-push.rs --crate-type=lib`
+warning: function `main` is never used
+ --> examples/vec-push/vec-push.rs:2:4
+  |
+2 | fn main() {
+  |    ^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+[1m[91merror[0m[1m: A possible panic spot is found.[0m
+ [1m[94m--> [0mexamples/vec-push/vec-push.rs:4:5
+  [1m[94m|[0m
+[1m[94m2[0m [1m[94m|[0m fn main() {
+  [1m[94m|[0m [1m[94m---------[0m [1m[94mFor this function.[0m
+[1m[94m3[0m [1m[94m|[0m     let mut vec = Vec::new();
+[1m[94m4[0m [1m[94m|[0m     vec.push(1);
+  [1m[94m|[0m     [1m[91m^^^^^^^^^^^[0m [1m[91mThis may panic![0m
+warning: 1 warning emitted
+

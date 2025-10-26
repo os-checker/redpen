@@ -11,4 +11,10 @@ impl S {
     }
 
     fn no_panic(&self) {}
+
+    pub fn two_panics(&self) {
+        self.b();
+        let mut v = vec![0];
+        v.push(1);
+    }
 }

@@ -1,8 +1,10 @@
 use crate::{detect::Detect, diagnostics::PanicSpots, fn_item::FnItem};
 use indexmap::{IndexMap, IndexSet};
+use rustc_middle::ty::TyCtxt;
 use rustc_public::{
-    mir::{MirVisitor, Operand, TerminatorKind, visit::Location},
-    ty::{RigidTy, Ty, TyKind},
+    mir::{Body, MirVisitor, Operand, visit::Location},
+    rustc_internal::internal,
+    ty::{FnDef, RigidTy, Span, Ty, TyKind},
 };
 
 #[derive(Debug, Default)]
@@ -101,7 +103,7 @@ impl CallGraph {
         false
     }
 
-    pub fn analyze(&self, detect: &Detect) -> PanicSpots {
+    pub fn analyze(&self, detect: &Detect, tcx: TyCtxt) -> PanicSpots {
         // dbg!(self);
         let verbose = true;
         let mut spots = PanicSpots::default();
@@ -117,47 +119,14 @@ impl CallGraph {
                 if !verbose && self.reachable(entry, panic) {
                     println!("{entry:?} reaches panic");
                 } else {
-                    let caller_fn_def = entry.def;
-                    let caller = entry.def.body().unwrap();
-                    let caller_span = caller.span;
+                    let caller = entry.def;
+                    let body = caller.body().unwrap();
+                    let span = body.span;
 
-                    let call_path = self.call_path(entry, panic);
-                    for path in &call_path {
-                        dbg!(path.iter().map(|f| f.print()).collect::<Vec<_>>());
-
-                        match path.len() {
-                            // panic happens in the caller
-                            2 => {
-                                // dbg!(&caller);
-                                for bb in &caller.blocks {
-                                    // Only handle `begin_panic(arg)` for now:
-                                    // the begin_panic arg points to a local span.
-                                    if let TerminatorKind::Call { func, args, .. } =
-                                        &bb.terminator.kind
-                                        && let Operand::Constant(val) = func
-                                        && let Some((fn_def, _)) = val.ty().kind().fn_def()
-                                        && detect.is_panic_fn(&fn_def)
-                                        && let Some(Operand::Constant(operand)) = args.first()
-                                    {
-                                        spots.add(caller_fn_def, caller_span, operand.span);
-                                    }
-                                }
-                            }
-                            // Panic happens in the callee, so fetch the local call span.
-                            _ => {
-                                let call = &path[1];
-                                for bb in &caller.blocks {
-                                    if let TerminatorKind::Call { func, .. } = &bb.terminator.kind
-                                        && let Operand::Constant(val) = func
-                                        && let Some((fn_def, _)) = val.ty().kind().fn_def()
-                                        && fn_def == call.def
-                                    {
-                                        spots.add(caller_fn_def, caller_span, bb.terminator.span);
-                                    }
-                                }
-                            }
-                        };
-                    }
+                    let path = self.call_path(entry, panic);
+                    let mut local_spots = LocalPanicSpot::new(&path, &body, tcx);
+                    local_spots.visit_body(&body);
+                    spots.add(caller, span, local_spots.panic_spots());
                 }
             }
         }
@@ -179,5 +148,65 @@ impl MirVisitor for Nodes {
             self.set.insert(fn_def.into());
         }
         self.super_ty(ty);
+    }
+}
+
+pub fn contains_span(tcx: TyCtxt, large: Span, small: Span) -> bool {
+    let large = internal(tcx, large);
+    let small = internal(tcx, small);
+    large.contains(small)
+}
+
+struct LocalPanicSpot<'tcx, 'body> {
+    tcx: TyCtxt<'tcx>,
+    caller_body: &'body Body,
+    fn_may_panic: IndexSet<FnDef>,
+    panic_spots: IndexMap<FnDef, Vec<Span>>,
+}
+
+impl<'tcx, 'body> LocalPanicSpot<'tcx, 'body> {
+    fn new(path: &CallPaths, body: &'body Body, tcx: TyCtxt<'tcx>) -> Self {
+        LocalPanicSpot {
+            tcx,
+            caller_body: body,
+            fn_may_panic: path.iter().flatten().map(|a| a.def).collect(),
+            panic_spots: Default::default(),
+        }
+    }
+
+    fn contains(&self, span: Span) -> bool {
+        contains_span(self.tcx, self.caller_body.span, span)
+    }
+
+    fn panic_spots(self) -> IndexSet<Span> {
+        self.panic_spots.into_values().flatten().collect()
+    }
+
+    fn check_panic_spot(&mut self, ty: &Ty, span: Span) {
+        if let Some((fn_def, _)) = ty.kind().fn_def()
+            && self.fn_may_panic.contains(&fn_def)
+            && self.contains(span)
+        {
+            self.panic_spots
+                .entry(fn_def)
+                .and_modify(|v| v.push(span))
+                .or_insert_with(|| vec![span]);
+        }
+    }
+}
+
+impl MirVisitor for LocalPanicSpot<'_, '_> {
+    // fn visit_span(&mut self, span: &Span) {
+    //     if self.contains(*span) {
+    //         dbg!(span);
+    //     }
+    // }
+
+    fn visit_operand(&mut self, operand: &Operand, location: Location) {
+        if let Ok(ty) = operand.ty(self.caller_body.locals()) {
+            let span = location.span();
+            self.check_panic_spot(&ty, span);
+        }
+        self.super_operand(operand, location);
     }
 }

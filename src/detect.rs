@@ -1,5 +1,3 @@
-use rustc_public::ty::FnDef;
-
 use crate::{call_graph::CallGraph, fn_item::FnItem};
 
 pub struct Detect {
@@ -44,9 +42,9 @@ impl Detect {
         }
     }
 
-    pub fn is_panic_fn(&self, fn_def: &FnDef) -> bool {
-        let mut b = false;
-        self.with_panic_item(|f| b |= f.def == *fn_def);
-        b
-    }
+    // pub fn is_panic_fn(&self, fn_def: &FnDef) -> bool {
+    //     let mut b = false;
+    //     self.with_panic_item(|f| b |= f.def == *fn_def);
+    //     b
+    // }
 }

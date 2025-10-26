@@ -1,5 +1,5 @@
 use rustc_public::{CrateDef, ty::FnDef};
-use std::{fmt, rc::Rc, sync::LazyLock};
+use std::{fmt, rc::Rc};
 
 /// A FnDef simplified on Debug trait and `{:?}` printing.
 #[derive(Clone)]
@@ -50,21 +50,5 @@ impl FnItem {
 
     pub fn is(&self, name: &str) -> bool {
         *self.name == *name
-    }
-
-    pub fn print(&self) -> String {
-        // .diagnostic() contain absolute sysroot path, thus strip to shorten it
-        static PREFIX: LazyLock<Box<str>> = LazyLock::new(|| {
-            let output = std::process::Command::new("rustc")
-                .arg("--print=sysroot")
-                .output()
-                .unwrap();
-            assert!(output.status.success());
-            let sysroot = std::str::from_utf8(&output.stdout).unwrap().trim();
-            format!("{sysroot}/lib/rustlib/src/rust/library/").into()
-        });
-
-        let span = self.def.span().diagnostic();
-        format!("{} ({})", self.name, span.trim_start_matches(&**PREFIX))
     }
 }

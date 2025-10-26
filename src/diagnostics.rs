@@ -1,7 +1,7 @@
 extern crate rustc_span;
 
 use annotate_snippets::{AnnotationKind, Level, Renderer, Snippet};
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 use rustc_middle::ty::TyCtxt;
 use rustc_public::{
     CrateDef,
@@ -85,8 +85,7 @@ impl<'tcx, 'src, 'spots> CheckPanic<'tcx, 'src, 'spots> {
 #[derive(Debug)]
 struct Spots {
     caller: PubSpan,
-    // FIXME: ensure the spans of calls are within caller span.
-    calls: Vec<PubSpan>,
+    calls: IndexSet<PubSpan>,
 }
 
 fn span(sp: PubSpan, tcx: TyCtxt) -> Span {
@@ -99,14 +98,26 @@ pub struct PanicSpots {
 }
 
 impl PanicSpots {
-    pub fn add(&mut self, caller: FnDef, span: PubSpan, span_callee: PubSpan) {
-        self.map
-            .entry(caller)
-            .and_modify(|v| v.calls.push(span_callee))
-            .or_insert_with(|| Spots {
-                caller: span,
-                calls: vec![span_callee],
-            });
+    pub fn add(&mut self, caller: FnDef, span_caller: PubSpan, mut span_callee: IndexSet<PubSpan>) {
+        if span_callee.is_empty() {
+            return;
+        }
+        // Don't include the span of caller header.
+        span_callee.swap_remove(&caller.span());
+        // Don't include the span of caller body.
+        span_callee.swap_remove(&span_caller);
+
+        if let Some(v) = self.map.get_mut(&caller) {
+            v.calls.extend(span_callee);
+        } else {
+            self.map.insert(
+                caller,
+                Spots {
+                    caller: span_caller,
+                    calls: span_callee,
+                },
+            );
+        }
     }
 
     pub fn is_empty(&self) -> bool {
