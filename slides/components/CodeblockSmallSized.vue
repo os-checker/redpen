@@ -1,13 +1,23 @@
 <template>
-  <div class="codeblock-small">
+  <div class="codeblock-small" :style="{
+    '--fs': fontSize,
+    '--rg': rowGap
+  }">
     <slot />
   </div>
 </template>
 
-<style lang="css" scoped>
+<script setup>
+defineProps({
+  fontSize: { type: String, default: '12px' },
+  rowGap: { type: String, default: '0.1rem' }
+})
+</script>
+
+<style scoped>
 .codeblock-small :deep(pre),
 .codeblock-small :deep(pre code) {
-  font-size: 12px !important;
-  row-gap: 0.1rem !important;
+  font-size: var(--fs) !important;
+  row-gap: var(--rg) !important;
 }
 </style>
