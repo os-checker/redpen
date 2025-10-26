@@ -1,0 +1,14 @@
+[1m[91merror[0m[1m: A possible panic spot is found.[0m
+ [1m[94m--> [0m$DIR/1-indirect.rs:2:12
+  [1m[94m|[0m
+[1m[94m1[0m [1m[94m|[0m pub fn panic() {
+  [1m[94m|[0m [1m[94m--------------[0m [1m[94mFor this function.[0m
+[1m[94m2[0m [1m[94m|[0m     panic!("💥")
+  [1m[94m|[0m            [1m[91m^^^^[0m [1m[91mThis may panic![0m
+[1m[91merror[0m[1m: A possible panic spot is found.[0m
+ [1m[94m--> [0m$DIR/1-indirect.rs:6:5
+  [1m[94m|[0m
+[1m[94m5[0m [1m[94m|[0m pub fn caller() {
+  [1m[94m|[0m [1m[94m---------------[0m [1m[94mFor this function.[0m
+[1m[94m6[0m [1m[94m|[0m     panic()
+  [1m[94m|[0m     [1m[91m^^^^^^^[0m [1m[91mThis may panic![0m
