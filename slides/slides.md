@@ -59,14 +59,6 @@ routeAlias: toc
 <BackToTOC />
 
 ---
-
-References:
-
-* [Rust Dev Guide: Diagnostics](https://rustc-dev-guide.rust-lang.org/diagnostics.html)
-* [Clippy Development](https://doc.rust-lang.org/clippy/development/index.html)
-* [`rustc_middle::lint::lint_level`](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/lint/fn.lint_level.html) to emit lints
-
----
 src: ./pages/01-intro.md
 ---
 
@@ -76,4 +68,8 @@ src: ./pages/02-defid-hirid.md
 
 ---
 src: ./pages/03-mir.md
+---
+
+---
+src: ./pages/04-redpen-checker.md
 ---
