@@ -32,7 +32,7 @@ use rustc_public::{
     mir::{MirVisitor, visit::Location},
     ty::{FnDef, RigidTy, Ty, TyKind},
 };
-use std::{fmt, ops::ControlFlow, rc::Rc};
+use std::{fmt, ops::ControlFlow, rc::Rc, sync::LazyLock};
 
 fn main() {
     let rustc_args: Vec<_> = std::env::args().collect();
@@ -108,7 +108,7 @@ impl CallGraph {
     }
 
     /// From a nested callee to the top-level crate fn item (caller).
-    fn backtrace_path(&self, fn_item: FnItem) -> Vec<Vec<FnItem>> {
+    fn backtrace_path(&self, fn_item: FnItem) -> CallPaths {
         let mut path = Vec::new();
         let mut v_path = Vec::new();
 
@@ -118,39 +118,88 @@ impl CallGraph {
         v_path
     }
 
-    fn add_back_path(&self, f: &FnItem, v: &mut Vec<FnItem>, v_path: &mut Vec<Vec<FnItem>>) {
+    fn add_back_path(&self, f: &FnItem, path: &mut Vec<FnItem>, v_path: &mut CallPaths) {
         if let Some(callers) = self.back_edges.get(f) {
             for caller in &callers.set {
-                v.push(caller.clone());
+                path.push(caller.clone());
                 // Recurse.
-                self.add_back_path(caller, v, v_path);
+                self.add_back_path(caller, path, v_path);
             }
             return;
         }
         // The outmost caller doesn't have any caller, reaching the end.
-        v_path.push(v.clone());
-        v.pop();
+        v_path.push(path.clone());
+        path.pop();
     }
 
-    fn backtrace_path_starting_by_name(&self, fn_name: &str) -> Vec<Vec<FnItem>> {
+    fn backtrace_path_starting_by_name(&self, fn_name: &str) -> CallPaths {
         self.get_fn_item(fn_name)
             .cloned()
             .map(|f| self.backtrace_path(f))
             .unwrap_or_default()
     }
 
+    fn call_path(&self, start: &FnItem, stop: &FnItem) -> CallPaths {
+        let mut path = Vec::new();
+        let mut v_path = Vec::new();
+
+        path.push(start.clone());
+        self.add_call_path(start, stop, &mut path, &mut v_path);
+
+        v_path
+    }
+
+    fn add_call_path(
+        &self,
+        start: &FnItem,
+        stop: &FnItem,
+        path: &mut Vec<FnItem>,
+        v_path: &mut CallPaths,
+    ) {
+        if let Some(callees) = self.edges.get(start) {
+            for callee in &callees.set {
+                path.push(callee.clone());
+                if callee == stop {
+                    v_path.push(path.clone());
+                } else {
+                    self.add_call_path(callee, stop, path, v_path);
+                    path.pop();
+                }
+            }
+        }
+    }
+
     fn print(&self) {
         const PANIC: &str = "core::panicking::panic_nounwind";
         const PANIC_FMT: &str = "core::panicking::panic_nounwind_fmt";
+
+        let midpoint = "std::alloc::Allocator::grow";
+
         dbg!(
             self,
             self.backtrace_path_starting_by_name(PANIC),
             self.backtrace_path_starting_by_name(PANIC_FMT),
             // We can cut through any call to trace back.
-            self.backtrace_path_starting_by_name("std::alloc::Allocator::grow"),
+            self.backtrace_path_starting_by_name(midpoint),
         );
+
+        let main_to_panic = self
+            .call_path(
+                self.get_fn_item("main").unwrap(),
+                self.get_fn_item(PANIC).unwrap(),
+            )
+            .iter()
+            .map(|p| p.iter().map(|f| f.print()).collect::<Vec<_>>())
+            .collect::<Vec<_>>();
+        let midpoint_to_panic = self.call_path(
+            self.get_fn_item(midpoint).unwrap(),
+            self.get_fn_item(PANIC).unwrap(),
+        );
+        dbg!(main_to_panic, midpoint_to_panic);
     }
 }
+
+type CallPaths = Vec<Vec<FnItem>>;
 
 #[derive(Debug, Default)]
 struct Nodes {
@@ -203,5 +252,22 @@ impl FnItem {
 
     fn is(&self, name: &str) -> bool {
         *self.name == *name
+    }
+
+    /// An alternative debug string containing the name and span.
+    fn print(&self) -> String {
+        // .diagnostic() contain absolute sysroot path, thus strip to shorten it
+        static PREFIX: LazyLock<Box<str>> = LazyLock::new(|| {
+            let output = std::process::Command::new("rustc")
+                .arg("--print=sysroot")
+                .output()
+                .unwrap();
+            assert!(output.status.success());
+            let sysroot = std::str::from_utf8(&output.stdout).unwrap().trim();
+            format!("{sysroot}/lib/rustlib/src/rust/library/").into()
+        });
+
+        let span = self.def.span().diagnostic();
+        format!("{} ({})", self.name, span.trim_start_matches(&**PREFIX))
     }
 }

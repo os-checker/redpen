@@ -1,6 +1,6 @@
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
      Running `target/debug/examples/check-panics examples/vec-push/vec-push.rs`
-[examples/check-panics.rs:145:9] self = CallGraph {
+[examples/check-panics.rs:178:9] self = CallGraph {
     edges: {
         "alloc::raw_vec::RawVec::<T, A>::grow_one": Nodes {
             set: {
@@ -282,7 +282,7 @@
         },
     },
 }
-[examples/check-panics.rs:145:9] self.backtrace_path_starting_by_name(PANIC) = [
+[examples/check-panics.rs:178:9] self.backtrace_path_starting_by_name(PANIC) = [
     [
         "core::panicking::panic_nounwind",
         "core::ub_checks::maybe_is_nonoverlapping::runtime",
@@ -296,7 +296,7 @@
         "main",
     ],
 ]
-[examples/check-panics.rs:145:9] self.backtrace_path_starting_by_name(PANIC_FMT) = [
+[examples/check-panics.rs:178:9] self.backtrace_path_starting_by_name(PANIC_FMT) = [
     [
         "core::panicking::panic_nounwind_fmt",
         "core::num::<impl usize>::unchecked_mul::precondition_check",
@@ -418,7 +418,7 @@
         "main",
     ],
 ]
-[examples/check-panics.rs:145:9] self.backtrace_path_starting_by_name("std::alloc::Allocator::grow") = [
+[examples/check-panics.rs:178:9] self.backtrace_path_starting_by_name(midpoint) = [
     [
         "std::alloc::Allocator::grow",
         "alloc::raw_vec::RawVecInner::<A>::finish_grow",
@@ -427,5 +427,27 @@
         "std::vec::Vec::<T, A>::push_mut",
         "std::vec::Vec::<T, A>::push",
         "main",
+    ],
+]
+[examples/check-panics.rs:198:9] main_to_panic = [
+    [
+        "main (examples/vec-push/vec-push.rs:2:1: 2:10)",
+        "std::vec::Vec::<T, A>::push (alloc/src/vec/mod.rs:2563:5: 2563:37)",
+        "std::vec::Vec::<T, A>::push_mut (alloc/src/vec/mod.rs:2640:5: 2640:51)",
+        "alloc::raw_vec::RawVec::<T, A>::grow_one (alloc/src/raw_vec/mod.rs:334:5: 334:38)",
+        "alloc::raw_vec::RawVecInner::<A>::grow_amortized (alloc/src/raw_vec/mod.rs:672:5: 677:37)",
+        "alloc::raw_vec::RawVecInner::<A>::finish_grow (alloc/src/raw_vec/mod.rs:740:5: 744:48)",
+        "std::alloc::Allocator::grow (core/src/alloc/mod.rs:205:5: 210:43)",
+        "std::ptr::copy_nonoverlapping::precondition_check (core/src/ub_checks.rs:68:13: 68:56)",
+        "core::ub_checks::maybe_is_nonoverlapping::runtime (core/src/intrinsics/mod.rs:2423:9: 2423:64)",
+        "core::panicking::panic_nounwind (core/src/panicking.rs:229:1: 229:53)",
+    ],
+]
+[examples/check-panics.rs:198:9] midpoint_to_panic = [
+    [
+        "std::alloc::Allocator::grow",
+        "std::ptr::copy_nonoverlapping::precondition_check",
+        "core::ub_checks::maybe_is_nonoverlapping::runtime",
+        "core::panicking::panic_nounwind",
     ],
 ]
