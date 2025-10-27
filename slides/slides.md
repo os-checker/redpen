@@ -28,11 +28,15 @@ hideInToc: true
 # download: true
 ---
 
-<h1 style="font-size: 3.2rem; font-weight: bold;">基于 Rust 编译器的静态分析工具：<br>基本流程与示例实现</h1>
+<h1 style="font-size: 3.2rem">基于 Rust 编译器的静态分析工具：<br>基本流程与示例实现</h1>
 
-<h2>周积萍</h2>
+<div class="text-xl font-bold">
 
-2025-10-22
+仓库：[os-checker/redpen](https://github.com/os-checker/redpen)
+
+分享者：周积萍
+
+</div>
 
 <style scoped>
 .slidev-layout.cover {

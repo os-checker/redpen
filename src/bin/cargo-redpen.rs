@@ -7,10 +7,9 @@ const ENV_RUSTC_WRAPPER: &str = "REDPEN";
 const ENV_CARGO_TOOL: &str = "CARGO_REDPEN";
 
 fn main() {
-    // Search cargo-safety-tool and safety-tool CLI through environment variables,
-    // or just use the name if absent.
-    let cargo_safe_tool = &*var(ENV_CARGO_TOOL).unwrap_or_else(|_| CARGO_TOOL.to_owned());
-    let safe_tool = &*var(ENV_RUSTC_WRAPPER).unwrap_or_else(|_| RUSTC_WRAPPER.to_owned());
+    // Search CLI through environment variables, or just use the name if absent.
+    let cargo_tool = &*var(ENV_CARGO_TOOL).unwrap_or_else(|_| CARGO_TOOL.to_owned());
+    let redpen = &*var(ENV_RUSTC_WRAPPER).unwrap_or_else(|_| RUSTC_WRAPPER.to_owned());
 
     let args = std::env::args().collect::<Vec<_>>();
 
@@ -24,7 +23,7 @@ fn main() {
         //     args[1] = "src/main.rs".to_owned();
         // }
 
-        run(safe_tool, &args[1..], &[]);
+        run(redpen, &args[1..], &[]);
     } else {
         // Entry for cargo-safety-tool: all arguments after `cargo safety-tool`
         // will be passed to `cargo build`.
@@ -39,11 +38,7 @@ fn main() {
             unimplemented!("Need to support this case: {args:#?}")
         }
         // cargo build args...
-        run(
-            "cargo",
-            &args,
-            &[("RUSTC", cargo_safe_tool), ("WRAPPER", "1")],
-        );
+        run("cargo", &args, &[("RUSTC", cargo_tool), ("WRAPPER", "1")]);
     }
 }
 
