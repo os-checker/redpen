@@ -14,7 +14,7 @@ class: text-center
 drawings:
   persist: false
 # slide transition: https://sli.dev/guide/animations.html#slide-transitions
-transition: slide-left
+transition: ''
 # enable MDC Syntax: https://sli.dev/features/mdc
 # mdc: true
 # open graph
@@ -73,3 +73,14 @@ src: ./pages/04-redpen-checker.md
 ---
 src: ./pages/05-linter.md
 ---
+
+---
+src: ./pages/06-os-checker.md
+---
+
+---
+
+<div class="w-full h-full flex items-center justify-center text-4rem">
+
+  感谢观看！
+</div>

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@slidev/cli": "^52.5.0",
+    "@slidev/client": "^52.6.0",
     "@slidev/theme-default": "latest",
     "@slidev/theme-seriph": "latest",
     "rough-notation": "^0.5.1",
