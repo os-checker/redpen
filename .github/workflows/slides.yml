@@ -18,6 +18,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
+
       - name: Install Source Han Sans SC
         run: |
           mkdir -p ~/.local/share/fonts
@@ -45,7 +47,7 @@ jobs:
           fc-cache -fv ~/.local/share/fonts/FiraCode
           fc-list 
 
-      - name: Install FiraCode Nerd Font
+      - name: Install FiraMono Nerd Font
         run: |
           wget -q https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraMono.zip
           unzip FiraMono.zip -d FiraMono
@@ -53,7 +55,11 @@ jobs:
           fc-cache -fv ~/.local/share/fonts/FiraMono
           fc-list 
 
-      - uses: actions/checkout@v4
+      - name: Update fonts.config
+        run: |
+          mkdir -p ~/.config/fontconfig
+          mv .github/fonts.conf ~/.config/fontconfig
+          fc-cache -fv
 
       - uses: actions/setup-node@v4
         with:
