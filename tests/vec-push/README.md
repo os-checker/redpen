@@ -23,3 +23,21 @@ error: A possible panic spot is found.
 3 |     v.push(1);
   |     ^^^^^^^^^ This may panic!
 ```
+
+# Slicen panic report
+
+Redpen emits diagnostics for all local top-level functions that will possibly
+panic, but we can mute one if it's tagged with `#[redpen::silence_panic]`.
+
+```rust
+// Register this tool attribute at the top of root module.
+#![feature(register_tool)]
+#![register_tool(redpen)]
+
+// This won't be shown in diagnostics.
+#[redpen::silence_panic]
+pub fn dont_report() {
+    let mut v = vec![0];
+    v.push(1);
+}
+```

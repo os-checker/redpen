@@ -1,5 +1,4 @@
-   Compiling redpen v0.1.0 (/home/gh-zjp-CN/redpen2)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.82s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s
      Running `target/debug/redpen examples/check-panic/detected.rs --crate-type=lib`
 [1m[91merror[0m[1m: A possible panic spot is found.[0m
  [1m[94m--> [0mexamples/check-panic/detected.rs:4:12

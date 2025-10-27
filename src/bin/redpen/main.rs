@@ -13,6 +13,7 @@ mod fn_item;
 
 use crate::{call_graph::CallGraph, detect::Detect, diagnostics::SourceCode, fn_item::FnItem};
 use rustc_middle::ty::TyCtxt;
+use rustc_public::CrateDef;
 use std::ops::ControlFlow;
 
 fn main() {
@@ -27,8 +28,18 @@ fn analysis(tcx: TyCtxt) -> ControlFlow<(), ()> {
 
     for f in local_crate.fn_defs() {
         let fn_item = FnItem::new(f);
-        entries.push(fn_item.clone());
-        call_graph.reach_in_depth(fn_item);
+        call_graph.reach_in_depth(fn_item.clone());
+
+        // When a top-level function is tagged, don't treat it as an entry item to report.
+        let mut push_entry = true;
+        for attr in f.all_tool_attrs() {
+            if attr.as_str().trim() == "#[redpen::silence_panic]" {
+                push_entry = false;
+            }
+        }
+        if push_entry {
+            entries.push(fn_item);
+        }
     }
 
     call_graph.sort();
