@@ -286,7 +286,7 @@ fn name_from_instance(f: &FnDef) -> String {
 
 <CodeblockSmallSized>
 
-```bash {*|4-6}
+```bash
 $ cargo run --example print-fn-names -- src/main.rs
      Running `target/debug/examples/print-fn-names src/main.rs`
 [main] main                              - (instance) main
@@ -295,15 +295,61 @@ $ cargo run --example print-fn-names -- src/main.rs
 [main] <main::RustcPublic<B, C, F> as rustc_driver::Callbacks>::after_analysis - (instance) Item requires monomorphization
 ```
 
+<v-click>
+
 <Info>
 🤔 Item requires <strong>monomorphization （单态化）</strong>?
 </Info>
 
-https://rustc-dev-guide.rust-lang.org/backend/monomorph.html
-
+</v-click>
 </CodeblockSmallSized>
-
 
 ---
 
 ## Monomorphization
+
+<div class="h-4" />
+
+> 编译器会为所需的每个具体类型标记出泛型函数代码的不同副本。
+>
+> 例如，如果代码中使用了 `Vec<u64>` 和 `Vec<String>`，则生成的二进制文件将生成两个 Vec 副本。
+>
+> 最终生成高效的程序，但具有一些代码：
+> * 编译时间（创建所有这些副本可能需要一段时间）
+> * 二进制大小（所有这些副本可能占用大量空间）
+
+<CodeblockSmallSized>
+<TwoColumns>
+
+<template #right>
+
+```rust
+pub enum RigidTy { // 类似 TyKind 的结构
+    Adt(AdtDef, GenericArgs),
+    FnDef(FnDef, GenericArgs),
+    Closure(ClosureDef, GenericArgs),
+    ...
+}
+```
+
+</template>
+
+<template #left>
+
+rustc_public 的单态化表示：
+
+```rust
+// Instance = FnDef + 填充具体类型的参数
+fn resolve(def: FnDef, args: &GenericArgs) -> Result<Instance, Error> { }
+```
+
+</template>
+
+</TwoColumns>
+</CodeblockSmallSized>
+
+编译器中单态化的细节：
+
+* [rustc-dev-guide#monomorph](https://rustc-dev-guide.rust-lang.org/backend/monomorph.html)
+* [rustc_monomorphize::collector](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_monomorphize/collector/index.html)
+* [rustc_middle::ty::InstanceKind](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/enum.InstanceKind.html)
