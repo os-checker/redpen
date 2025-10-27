@@ -32,7 +32,7 @@ MIR = Middle-Level Intermediate Representation
 * 单态化函数实例的控制流图
 * 以基本块为单位，由语句（节点）和终止符（边）构成
   * 语句：对栈上的值执行赋值、标记等操作
-  * 终止符：控制流跳转（分支、调用、返回、unwind 等）
+  * 终止符：控制流跳转(分支、调用、返回、unwind 等)
   * 没有嵌套的表达式
 * 完全显式的类型和操作
 * 适合各种[数据流分析](https://rustc-dev-guide.rust-lang.org/mir/dataflow.html)
