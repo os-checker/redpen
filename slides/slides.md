@@ -55,14 +55,6 @@ routeAlias: toc
 <Toc maxDepth="1" />
 
 ---
-
-# 基本框架
-
-<Toc mode="onlyCurrentTree" />
-
-<BackToTOC />
-
----
 src: ./pages/01-intro.md
 ---
 
@@ -76,4 +68,8 @@ src: ./pages/03-mir.md
 
 ---
 src: ./pages/04-redpen-checker.md
+---
+
+---
+src: ./pages/05-linter.md
 ---

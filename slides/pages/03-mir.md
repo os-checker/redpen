@@ -35,6 +35,7 @@ MIR = Middle-Level Intermediate Representation
   * 终止符：控制流跳转（函数调用、返回、unwind 等）
   * 没有嵌套的表达式
 * 完全显式的类型和操作
+* 适合各种[数据流分析](https://rustc-dev-guide.rust-lang.org/mir/dataflow.html)
 
 </div>
 </template>

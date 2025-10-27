@@ -1,3 +1,11 @@
+# Intro
+
+<Toc mode="onlyCurrentTree" />
+
+<BackToTOC />
+
+---
+
 ## 固定工具链
 
 <div class="DivWide">
@@ -20,7 +28,6 @@ rustc_private = true
 ```
 
 </div>
-
 
 ---
 
@@ -228,6 +235,8 @@ let res: Result<C, CompilerError<B>> = run_with_tcx!(...);
 </v-click>
 
 --- 
+hideInToc: true
+---
 
 ### 程序分析函数
 
@@ -305,6 +314,8 @@ $ cargo run --example print-fn-names -- src/main.rs
 </CodeblockSmallSized>
 
 ---
+hideInToc: true
+---
 
 ## Monomorphization
 
@@ -352,4 +363,4 @@ fn resolve(def: FnDef, args: &GenericArgs) -> Result<Instance, Error> { }
 
 * [rustc-dev-guide#monomorph](https://rustc-dev-guide.rust-lang.org/backend/monomorph.html)
 * [rustc_monomorphize::collector](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_monomorphize/collector/index.html)
-* [rustc_middle::ty::InstanceKind](https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/enum.InstanceKind.html)
+* [Guide: ADTs and Generic Arguments](https://rustc-dev-guide.rust-lang.org/ty_module/generic_arguments.html)
