@@ -18,42 +18,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install Source Han Sans SC + Mono + Emoji
+      - name: Install Source Han Sans SC
         run: |
           mkdir -p ~/.local/share/fonts
-          cd 
           # 1. 思源黑体（Sans）
           wget -q https://github.com/adobe-fonts/source-han-sans/releases/latest/download/09_SourceHanSansSC.zip
           unzip 09_SourceHanSansSC.zip -d sans
           mv sans ~/.local/share/fonts
-          sudo fc-cache -fv ~/.local/share/fonts/sans
-          sudo fc-list 
+          fc-cache -fv ~/.local/share/fonts/sans
+          fc-list 
 
       - name: Install JetBrainsMono NerdFont
         run: |
-          cd 
           wget -q https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz
           mkdir mono
           tar -xf JetBrainsMono.tar.xz -C mono
           mv mono ~/.local/share/fonts
-          sudo fc-cache -fv ~/.local/share/fonts/mono
-          sudo fc-list 
+          fc-cache -fv ~/.local/share/fonts/mono
+          fc-list 
 
       - name: Install FiraCode Nerd Font
         run: |
           wget -q https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.zip
           unzip FiraCode.zip -d FiraCode
           mv FiraCode ~/.local/share/fonts
-          sudo fc-cache -fv ~/.local/share/fonts/FiraCode
-          sudo fc-list 
+          fc-cache -fv ~/.local/share/fonts/FiraCode
+          fc-list 
 
       - name: Install FiraCode Nerd Font
         run: |
           wget -q https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraMono.zip
           unzip FiraMono.zip -d FiraMono
           mv FiraMono ~/.local/share/fonts
-          sudo fc-cache -fv ~/.local/share/fonts/FiraMono
-          sudo fc-list 
+          fc-cache -fv ~/.local/share/fonts/FiraMono
+          fc-list 
 
       - uses: actions/checkout@v4
 
