@@ -25,7 +25,7 @@ monaco: false
 # selectable: true
 routerMode: hash
 hideInToc: true
-# download: true
+download: true
 ---
 
 <h1 style="font-size: 3.2rem">基于 Rust 编译器的静态分析工具：<br>基本流程与示例实现</h1>
