@@ -53,7 +53,7 @@ const currentImage = computed(() => {
   <img :src="currentImage" class="max-h-full w-auto object-contain">
 </div>
 
-<div class="text-center text-[blue]">
+<div class="text-center">
 
 [os-checker.github.io/diagnostics](https://os-checker.github.io/diagnostics)
 
@@ -63,7 +63,7 @@ const currentImage = computed(() => {
 
 ## 静态检查工具组件化
 
-<div class="absolute top-12 left-84 text-[blue]">
+<div class="absolute top-12 left-84">
 
 [文档](https://os-checker.github.io/book/goal/componentization.html)
 

@@ -30,3 +30,11 @@
   font-weight: bold;
   font-size: 24px;
 }
+
+a:link,
+a:visited   { color: #0066cc; }
+
+a:hover,
+a:focus     { color: #3b82f6 !important; } 
+
+a:active    { color: #2563eb; }
