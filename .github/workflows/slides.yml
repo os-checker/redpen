@@ -26,7 +26,7 @@ jobs:
           fc-cache -fv $PWD/sans/OTF/SimplifiedChinese/
 
           # 2. nerd-fonts
-          wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/3270.zip
+          wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz
           mkdir mono
           tar -xf JetBrainsMono.tar.xz -C mono
           fc-cache -fv $PWD/mono
