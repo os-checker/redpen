@@ -6,7 +6,7 @@
 
 ---
 
-## Rust 程序分析与代码检查工具生态总览
+## Rust 检查工具生态总览
 
 ![](https://github.com/user-attachments/assets/7c95563e-479a-43c2-8eae-155999c75b30)
 
@@ -177,7 +177,7 @@ hideInToc: true
 pub fn run(&mut self, args: &[String]) -> Result<C, CompilerError<B>> {
     let compiler_result = rustc_driver::catch_fatal_errors(
         || -> interface::Result::<()> {
-          run_compiler(&args, self);
+          rustc_driver::run_compiler(&args, self);
           Ok(())
     });
     match (compiler_result, self.result.take()) {
@@ -253,7 +253,7 @@ hideInToc: true
 _ = run!(&rustc_args, analysis);
 ```
 
-```rust {*|4|6|7,14,15}{lines:true}
+```rust {*|4|6|7,14,15|8|11}{lines:true}
 use rustc_public::{CrateDef, CrateItem, mir::mono::Instance, ty::FnDef};
 
 fn analysis() -> ControlFlow<(), ()> {

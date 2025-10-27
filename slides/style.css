@@ -32,9 +32,9 @@
 }
 
 a:link,
-a:visited   { color: #0066cc; }
+a:visited   { color: #3b82f6; }
 
 a:hover,
-a:focus     { color: #3b82f6 !important; } 
+a:focus     { color: #2563eb !important; } 
 
-a:active    { color: #2563eb; }
+a:active    { color: #3b82f6; }

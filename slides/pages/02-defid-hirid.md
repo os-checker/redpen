@@ -66,9 +66,10 @@ pub struct ItemLocalId(u32);   // (2)
 
 <div class="h-4" />
 
-Ref：<https://rustc-dev-guide.rust-lang.org/hir.html#identifiers-in-the-hir>
+[Ref](https://rustc-dev-guide.rust-lang.org/hir.html#identifiers-in-the-hir). 
+HIR = High-Level Intermediate Representation
 
-(注 `rustc_public::DefId` 使用 usize 索引，并与 `DefId` 相互转化。)
+Rust 总体编译过程：源码 -> AST -> HIR -> THIR -> MIR -> 代码生成
 
 ---
 
@@ -161,6 +162,7 @@ ADT (algebraic data type) = user-defined type, e.g., a struct, enum, or union.
 <template #left>
 
 ```rust
+// hir::Node<'hir>::Stmt(&'hir Stmt<'hir>)
 pub struct Stmt<'hir> {
     pub hir_id: HirId,
     pub kind: StmtKind<'hir>,
@@ -190,7 +192,6 @@ pub enum StmtKind<'hir> {
 ---
 
 ### HIR `Expr`
-
 
 ```rust
 pub struct Expr<'hir> {
@@ -261,7 +262,7 @@ THIR = Typed High-Level Intermediate Representation ([Ref](https://rustc-dev-gui
 
 * HIR 节点中所有类型填充完毕（通过了类型检查）
 * 以 body 方式呈现（比如函数体、 const initializer）
-* 只有可执行代码，不再有 struct、trait 内定义的项
+* 只有可执行代码，不再有 struct、trait 等定义的项
 * 每个 THIR body 只会被临时存储，随 HIR 只存在当前的被编译 crate 中
 * 额外的脱糖：显式自动引用和取消引用、方法调用和重载运算符被转换为普通函数调用、显式的销毁范围
 * 语句、表达式和 match arm 单独存储：stmts 数组中，每个表达式通过 ExprId 来索引 exprs 数组的表达式
