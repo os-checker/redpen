@@ -25,14 +25,15 @@ jobs:
           wget -q https://github.com/adobe-fonts/source-han-sans/releases/download/2.005R/09_SourceHanSansSC.zip
           unzip -q 09_SourceHanSansSC.zip -d sans
           sudo fc-cache -fv $PWD/sans/OTF/SimplifiedChinese/
+          sudo fc-list 
 
-          # 2. nerd-fonts
+      - name: Install JetBrainsMono NerdFont
+        run: |
+          cd 
           wget https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz
           mkdir mono
           tar -xf JetBrainsMono.tar.xz -C mono
           sudo fc-cache -fv $PWD/mono
-          # 验证
-          # fc-list :lang=zh | grep -i source
           sudo fc-list 
 
       - uses: actions/checkout@v4
