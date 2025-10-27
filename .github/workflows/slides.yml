@@ -20,6 +20,7 @@ jobs:
     steps:
       - name: Install Source Han Sans SC + Mono + Emoji
         run: |
+          mkdir -p ~/.local/share/fonts
           cd 
           # 1. 思源黑体（Sans）
           wget https://github.com/adobe-fonts/source-han-sans/releases/download/2.005R/09_SourceHanSansSC.zip
