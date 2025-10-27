@@ -21,24 +21,10 @@ jobs:
       - name: Install Source Han Sans SC + Mono + Emoji
         run: |
           # 1. 思源黑体（Sans）
-          wget -q https://github.com/adobe-fonts/source-han-sans/releases/download/2.004R/SourceHanSansSC.zip
-          unzip -q SourceHanSansSC.zip -d sans
-          sudo mkdir -p /usr/share/fonts/opentype/source-han-sans
-          sudo cp sans/SubsetOTF/SC/*.otf /usr/share/fonts/opentype/source-han-sans/
+          wget -q https://github.com/adobe-fonts/source-han-sans/releases/download/2.005R/09_SourceHanSansSC.zip
+          unzip -q 09_SourceHanSansSC.zip -d sans
+          sudo fc-cache -fv sans/OTF/SimplifiedChinese/
 
-          # 2. 思源等宽 (Source Han Mono)
-          wget -q https://github.com/adobe-fonts/source-han-mono/releases/download/1.002R/SourceHanMonoSC.zip
-          unzip -q SourceHanMonoSC.zip -d mono
-
-          sudo mkdir -p /usr/share/fonts/opentype/source-han-mono
-          sudo cp mono/SubsetOTF/SC/*.otf /usr/share/fonts/opentype/source-han-mono/
-
-          # 3. Emoji（Google Noto Color Emoji）
-          sudo apt-get update -y
-          sudo apt-get install -y fonts-noto-color-emoji
-
-          # 4. 刷新缓存
-          sudo fc-cache -fv
 
           # 5. 验证
           fc-list :lang=zh | grep -i source
