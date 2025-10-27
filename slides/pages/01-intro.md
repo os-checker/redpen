@@ -42,7 +42,7 @@ rustc_private = true
 ```rust
 #![feature(rustc_private)]
 
-extern crate rustc_public;
+extern crate rustc_public; // 之前叫 stable_mir
 
 fn main() {
     let rustc_args: Vec<_> = std::env::args().collect();
@@ -109,6 +109,7 @@ error[E0432]: unresolved import `rustc_interface`
 ---
 
 ```rust
+// src/main.rs
 #![feature(rustc_private)]
 
 extern crate rustc_driver;

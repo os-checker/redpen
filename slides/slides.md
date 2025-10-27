@@ -30,7 +30,7 @@ hideInToc: true
 
 <h1 style="font-size: 3.2rem">基于 Rust 编译器的静态分析工具：<br>基本流程与示例实现</h1>
 
-<div class="text-xl font-bold">
+<div class="text-xl font-bold text-orange-500">
 
 仓库：[os-checker/redpen](https://github.com/os-checker/redpen)
 
