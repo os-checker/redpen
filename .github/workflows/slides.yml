@@ -25,10 +25,9 @@ jobs:
           unzip -q 09_SourceHanSansSC.zip -d sans
           sudo fc-cache -fv sans/OTF/SimplifiedChinese/
 
-
           # 5. 验证
-          fc-list :lang=zh | grep -i source
-          fc-list | grep -i emoji
+          # fc-list :lang=zh | grep -i source
+          # fc-list | grep -i emoji
 
       - uses: actions/checkout@v4
 
