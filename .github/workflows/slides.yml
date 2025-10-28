@@ -77,11 +77,11 @@ jobs:
         working-directory: slides
         run: nr build --base /${{github.event.repository.name}}/
 
-      - name: Check fonts in pdf
-        run: |
-          sudo apt-get update
-          sudo apt-get install poppler-utils -y
-          pdffonts slides/dist/slidev-exported.pdf
+      # - name: Check fonts in pdf
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install poppler-utils -y
+      #     pdffonts slides/dist/slidev-exported.pdf
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
