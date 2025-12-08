@@ -120,7 +120,7 @@ impl CallGraph {
                     println!("{entry:?} reaches panic");
                 } else {
                     let caller = entry.def;
-                    let body = caller.body().unwrap();
+                    let Some(body) = caller.body() else { continue };
                     let span = body.span;
 
                     let path = self.call_path(entry, panic);

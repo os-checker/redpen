@@ -52,5 +52,5 @@ fn analysis(tcx: TyCtxt) -> ControlFlow<(), ()> {
         spots.emit(&src);
     }
 
-    ControlFlow::Break(())
+    ControlFlow::Continue(())
 }
